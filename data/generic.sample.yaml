@@ -1,0 +1,20 @@
+ # Generic data is a data without specific type and contains only common properties
+title: Something awesome
+description: >
+    Something
+    awesome
+picture: https://something.awesome.some/pic.jpg
+
+# List of links
+links:
+   - icon: news
+     label: News
+     addr: ttps://something.awesome.some/news
+   - icon: docs
+     label: Documentation
+     addr: ttps://something.awesome.some/docs
+
+# List of topics
+topics:
+   - Something
+   - awesome

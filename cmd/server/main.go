@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ognev-dev/bits/config"
 	"github.com/ognev-dev/bits/logger"
-	"github.com/ognev-dev/bits/server/routes"
+	"github.com/ognev-dev/bits/server/route"
 )
 
 func main() {
@@ -17,7 +17,7 @@ func main() {
 	logger.Setup()
 
 	r := gin.Default()
-	routes.Register(r)
+	route.Register(r)
 
 	server := &http.Server{
 		Addr:    conf.Server.Host + ":" + conf.Server.Port,

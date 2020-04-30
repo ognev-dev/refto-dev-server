@@ -9,6 +9,7 @@ type Data struct {
 	ID        string     `json:"-"`
 	Token     string     `json:"token"`
 	Name      string     `json:"-"`
+	Type      string     `json:"type"`
 	Data      string     `json:"data"`
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt *time.Time `json:"updated_at"`

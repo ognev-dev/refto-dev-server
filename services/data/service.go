@@ -1,60 +1,20 @@
-package user
+package data
 
 import (
-	"github.com/ognev-dev/bits/cmd/server/errors"
 	"github.com/ognev-dev/bits/database"
+	"github.com/ognev-dev/bits/database/filters"
 	"github.com/ognev-dev/bits/database/models"
+	"github.com/ognev-dev/bits/server/request"
 )
 
-func Create(elem *models.Data) (err error) {
-	_, err = database.ORM().
-		Model(elem).
-		Insert()
-
-	return
-}
-
-func FindByID(id string) (elem models.Data, err error) {
-	err = database.ORM().
-		Model(&elem).
-		Where("id = ?", id).
-		First()
-
-	return
-}
-
-func Update(m *models.Data) (err error) {
-	err = database.ORM().
-		Update(m)
-
-	return
-}
-
-func EmailVerified(id, email string) (err error) {
-	if email != "" {
-		var count int
-		count, err = database.ORM().Model(&models.User{}).
-			Where("email = ?", email).
-			Where("id != ?", id).
-			Count()
-		if err != nil {
-			return
-		}
-		if count > 0 {
-			err = errors.EmailChangeEmailInUser
-			return
-		}
-	}
-
+func Search(req request.SearchData) (data []models.Data, count int, err error) {
 	q := database.ORM().
-		Model(&models.User{}).
-		Set("email_verified = true").
-		Where("id = ?", id)
+		Model(&data).
+		Apply(filters.PageFilter(req.Page, req.Limit))
 
-	if email != "" {
-		q.Set("email = ?", email)
-	}
+	// todo filtration by topic
 
-	_, err = q.Update()
+	count, err = q.SelectAndCount()
+
 	return
 }

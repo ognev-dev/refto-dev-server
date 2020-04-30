@@ -1,4 +1,4 @@
-package handlers
+package handler
 
 import (
 	"net/http"
@@ -7,8 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg/v9"
 	"github.com/ognev-dev/bits/config"
-	"github.com/ognev-dev/bits/server/errors"
-	"github.com/ognev-dev/bits/server/responses"
+	serverError "github.com/ognev-dev/bits/server/error"
+	"github.com/ognev-dev/bits/server/response"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -17,26 +17,26 @@ type Validatable interface {
 }
 
 func abort400(c *gin.Context, err error) {
-	Abort(c, errors.New400(err.Error()))
+	Abort(c, serverError.New400(err.Error()))
 }
 
 func abort422(c *gin.Context, err error) {
-	Abort(c, errors.New422(err.Error()))
+	Abort(c, serverError.New422(err.Error()))
 }
 
 func Abort(c *gin.Context, err error) {
-	resp := responses.Error{}
+	resp := response.Error{}
 	code := http.StatusInternalServerError
 
 	switch err.(type) {
-	case errors.Error:
-		e := err.(errors.Error)
+	case serverError.Error:
+		e := err.(serverError.Error)
 		code = e.Code
 		resp.Error = e.Error()
-	case errors.List:
-		resp.Errors = err.(errors.List)
-	case errors.Input:
-		resp.InputErrors = err.(errors.Input)
+	case serverError.List:
+		resp.Errors = err.(serverError.List)
+	case serverError.Input:
+		resp.InputErrors = err.(serverError.Input)
 	default:
 		resp.Error = err.Error()
 		switch err {
