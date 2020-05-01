@@ -6,6 +6,7 @@ import (
 )
 
 type Data struct {
+	tableName struct{}   `pg:"data"`
 	ID        string     `json:"-"`
 	Token     string     `json:"token"`
 	Name      string     `json:"-"`
