@@ -12,8 +12,8 @@ server:
 
 dir:
   assets: "/path/to/assets"
-  data: "/path/to/data"
-  logs: "/path/to/data"
+  data: "/home/vo/projects/bits/data/"
+  logs: ""
 
 date_format: '2006-01-02'
 time_format: '15:04:05'

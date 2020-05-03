@@ -16,8 +16,8 @@ func MakeEntity(mOpt ...model.Entity) (m model.Entity, err error) {
 	if m.Token == "" {
 		m.Token = fake.UUID()
 	}
-	if m.Name == "" {
-		m.Name = fake.Name()
+	if m.Title == "" {
+		m.Title = fake.Name()
 	}
 	if m.Type == "" {
 		m.Type = "book"

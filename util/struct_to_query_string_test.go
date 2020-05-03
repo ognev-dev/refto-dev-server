@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"vobook/tests/assert"
-	"vobook/utils"
+	"github.com/ognev-dev/bits/test/assert"
+	"github.com/ognev-dev/bits/util"
 )
 
 func TestStructToQueryString(t *testing.T) {
@@ -18,7 +18,7 @@ func TestStructToQueryString(t *testing.T) {
 		C: 1,
 	}
 
-	result, err := utils.StructToQueryString(st)
+	result, err := util.StructToQueryString(st)
 	if err != nil {
 		t.Fatal(err.Error())
 	}

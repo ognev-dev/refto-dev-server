@@ -22,14 +22,14 @@ func TestSearchEntity(t *testing.T) {
 
 	// entity with 1 topic
 	_, err = factory.CreateEntity(model.Entity{
-		Name:   "ent1",
+		Title:  "ent1",
 		Topics: []model.Topic{{ID: topic1.ID}},
 	})
 	assert.NotError(t, err)
 
 	// entity with 2 topics
 	ent2, err := factory.CreateEntity(model.Entity{
-		Name: "ent2",
+		Title: "ent2",
 		Topics: []model.Topic{
 			{ID: topic1.ID},
 			{ID: topic2.ID},
@@ -39,7 +39,7 @@ func TestSearchEntity(t *testing.T) {
 
 	// entity with 3 topics
 	ent3, err := factory.CreateEntity(model.Entity{
-		Name: "ent3",
+		Title: "ent3",
 		Topics: []model.Topic{
 			{ID: topic1.ID},
 			{ID: topic2.ID},

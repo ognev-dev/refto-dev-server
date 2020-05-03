@@ -8,8 +8,8 @@ import (
 type Entity struct {
 	ID        int64      `json:"id"`
 	Token     string     `json:"token"`
-	Name      string     `json:"name"`
-	Type      string     `json:"type"`
+	Title     string     `json:"title"`
+	Type      string     `json:"type" pg:",use_zero"`
 	Data      string     `json:"data"`
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt *time.Time `json:"updated_at"`
@@ -21,14 +21,6 @@ type Entity struct {
 func (m *Entity) BeforeInsert(ctx context.Context) (context.Context, error) {
 	if m.CreatedAt.IsZero() {
 		m.CreatedAt = time.Now()
-	}
-	return ctx, nil
-}
-
-func (m *Entity) BeforeUpdate(ctx context.Context) (context.Context, error) {
-	if m.UpdatedAt.IsZero() {
-		now := time.Now()
-		m.UpdatedAt = &now
 	}
 	return ctx, nil
 }

@@ -1,6 +1,9 @@
 package entity
 
 import (
+	"time"
+
+	"github.com/go-pg/pg/v9"
 	"github.com/ognev-dev/bits/database"
 	"github.com/ognev-dev/bits/database/filter"
 	"github.com/ognev-dev/bits/database/model"
@@ -34,4 +37,42 @@ func Search(req request.SearchEntity) (data []model.Entity, count int, err error
 	count, err = q.SelectAndCount()
 
 	return
+}
+
+func CreateOrUpdate(elem *model.Entity) (err error) {
+	old := model.Entity{}
+	err = database.ORM().
+		Model(&old).
+		Where("token = ?", elem.Token).
+		First()
+	if err != nil && err != pg.ErrNoRows {
+		return
+	}
+
+	// insert new
+	if err == pg.ErrNoRows {
+		err = database.ORM().Insert(elem)
+		if err != nil {
+			return
+		}
+	} else {
+		old.Token = elem.Token
+		old.Title = elem.Title
+		old.Type = elem.Type
+		old.DeletedAt = nil
+
+		if old.Data != elem.Data {
+			now := time.Now()
+			old.Data = elem.Data
+			old.UpdatedAt = &now
+		}
+
+		err = database.ORM().Update(&old)
+		if err != nil {
+			return
+		}
+		*elem = old
+	}
+
+	return nil
 }

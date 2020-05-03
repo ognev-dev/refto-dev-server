@@ -10,7 +10,6 @@ CREATE TABLE topics
 (
     id         BIGSERIAL PRIMARY KEY NOT NULL,
     name       TEXT UNIQUE           NOT NULL,
-    color      TEXT                  NOT NULL,
     deleted_at TIMESTAMPTZ
 );
 
@@ -18,7 +17,7 @@ CREATE TABLE entities
 (
     id         BIGSERIAL PRIMARY KEY   NOT NULL,
     token      TEXT UNIQUE             NOT NULL,
-    name       TEXT                    NOT NULL,
+    title      TEXT                    NOT NULL,
     type       TEXT                    NOT NULL,
     data       JSONB                   NOT NULL,
     created_at TIMESTAMPTZ             NOT NULL,

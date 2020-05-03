@@ -3,7 +3,9 @@ title: Something awesome
 description: >
     Something
     awesome
-picture: https://something.awesome.some/pic.jpg
+
+# Address to preview picture
+preview: https://something.awesome.some/pic.jpg
 
 # List of links
 links:
