@@ -1,0 +1,20 @@
+db:
+  addr: localhost:5432
+  user: vobook
+  password: vobook
+  name: bits
+  log_queries: true
+
+server:
+  host: localhost
+  port: 8080
+  api_base_path: api
+
+dir:
+  assets: "/path/to/assets"
+  data: "/path/to/data"
+  logs: "/path/to/data"
+
+date_format: '2006-01-02'
+time_format: '15:04:05'
+date_time_format: '2006-01-02 15:04:05'

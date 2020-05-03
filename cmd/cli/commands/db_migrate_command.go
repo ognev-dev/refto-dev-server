@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ognev-dev/bits/database"
-	"github.com/ognev-dev/bits/database/migrations"
+	"github.com/ognev-dev/bits/database/migration"
 )
 
 func init() {
@@ -37,7 +37,7 @@ func migrateDB(args ...string) (err error) {
 		}
 	}
 
-	oldV, newV, err := migrations.Migrate()
+	oldV, newV, err := migration.Migrate()
 
 	if err != nil {
 		return

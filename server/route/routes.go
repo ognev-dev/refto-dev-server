@@ -15,17 +15,19 @@ func Register(r *gin.Engine) {
 	r.Use(corsConfig())
 
 	api := r.Group(conf.Server.ApiBasePath)
+	api.Use()
 	api.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "bits."+conf.AppEnv)
 	})
 
 	apply(api,
-		dataRoutes,
+		entityRoutes,
+		topicRoutes,
 	)
 }
 
-func apply(rg *gin.RouterGroup, routesFn ...func(*gin.RouterGroup)) {
-	for _, fn := range routesFn {
+func apply(rg *gin.RouterGroup, routeFn ...func(*gin.RouterGroup)) {
+	for _, fn := range routeFn {
 		fn(rg)
 	}
 }
@@ -34,7 +36,7 @@ func corsConfig() gin.HandlerFunc {
 	conf := cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
-		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "X-Client", "Authorization"},
+		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
 		AllowCredentials: false,
 		MaxAge:           24 * time.Hour,
 	}

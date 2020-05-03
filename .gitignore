@@ -7,3 +7,5 @@
 *.out
 
 .idea
+*.log
+.config.example.yaml
