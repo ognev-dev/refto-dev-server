@@ -1,0 +1,20 @@
+{
+  "name": "bits-frontend",
+  "version": "1.0.0",
+  "description": "bits frontend",
+  "author": "Vladimir Ognev",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "nuxt": "^2.0.0",
+    "ant-design-vue": "^1.1.10"
+  },
+  "devDependencies": {
+    "babel-plugin-import": "^1.13.0"
+  }
+}
