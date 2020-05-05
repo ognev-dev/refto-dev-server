@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ognev-dev/bits/service/data"
+
 	"github.com/ghodss/yaml"
 	"github.com/ognev-dev/bits/config"
 	"github.com/ognev-dev/bits/database"
@@ -14,11 +16,6 @@ import (
 	"github.com/ognev-dev/bits/service/entity"
 	entitytopic "github.com/ognev-dev/bits/service/entity_topic"
 	"github.com/ognev-dev/bits/service/topic"
-)
-
-const (
-	dataExt   = ".yaml"
-	sampleExt = ".sample.yaml"
 )
 
 func Process() (err error) {
@@ -59,8 +56,8 @@ func importEntitiesFromDir() (err error) {
 			return wErr
 		}
 
-		// skip dirs, samples and non-yaml files
-		if f.IsDir() || strings.HasSuffix(f.Name(), sampleExt) || !strings.HasSuffix(f.Name(), dataExt) {
+		// skip dirs, samples, schemas and non-yaml files
+		if !data.IsDataFile(f) {
 			return
 		}
 
@@ -75,13 +72,13 @@ func importEntitiesFromDir() (err error) {
 			return
 		}
 
-		data := Data{}
-		err = yaml.Unmarshal(fData, &data)
+		dataEl := Data{}
+		err = yaml.Unmarshal(fData, &dataEl)
 		if err != nil {
 			return
 		}
 
-		extWithType := eType + dataExt
+		extWithType := eType + data.YAMLExt
 		if extWithType[0] != '.' {
 			extWithType = "." + extWithType
 		}
@@ -95,7 +92,7 @@ func importEntitiesFromDir() (err error) {
 
 		entityEl := model.Entity{
 			Token:     token,
-			Title:     data.Title,
+			Title:     dataEl.Title,
 			Type:      eType,
 			Data:      string(jsonData),
 			CreatedAt: time.Now(),
@@ -105,7 +102,7 @@ func importEntitiesFromDir() (err error) {
 			return
 		}
 
-		for _, name := range data.Topics {
+		for _, name := range dataEl.Topics {
 			topicEl, err := topic.FirstOrCreate(name)
 			if err != nil {
 				return err
