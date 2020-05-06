@@ -7,12 +7,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ognev-dev/bits/service/data"
-
 	"github.com/ghodss/yaml"
 	"github.com/ognev-dev/bits/config"
 	"github.com/ognev-dev/bits/database"
 	"github.com/ognev-dev/bits/database/model"
+	"github.com/ognev-dev/bits/service/data"
 	"github.com/ognev-dev/bits/service/entity"
 	entitytopic "github.com/ognev-dev/bits/service/entity_topic"
 	"github.com/ognev-dev/bits/service/topic"

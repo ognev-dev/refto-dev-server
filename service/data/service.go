@@ -1,8 +1,18 @@
 package data
 
 import (
+	"io/ioutil"
 	"os"
+	"path"
 	"strings"
+
+	"github.com/ghodss/yaml"
+)
+
+type Type string
+
+const (
+	GenericType Type = "generic"
 )
 
 const (
@@ -38,4 +48,42 @@ func IsDataFile(f os.FileInfo) (ok bool) {
 	}
 
 	return false
+}
+
+func JSONBytesFromYAMLFile(fPath string) (data []byte, err error) {
+	yamlData, err := ioutil.ReadFile(fPath)
+	if err != nil {
+		return
+	}
+
+	data, err = yaml.YAMLToJSON(yamlData)
+	return
+}
+
+func TypeFromFilename(fPath string) (t Type) {
+	_, fName := path.Split(fPath)
+	nameParts := strings.Split(fName, ".")
+	if len(nameParts) > 2 {
+		t = Type(nameParts[len(nameParts)-2])
+	}
+
+	if t == "" {
+		t = GenericType
+	}
+
+	return
+}
+
+func TypeFromSchemaFilename(fPath string) (t Type) {
+	_, fName := path.Split(fPath)
+	nameParts := strings.Split(fName, ".")
+	if len(nameParts) > 2 {
+		t = Type(nameParts[0])
+	}
+
+	if t == "" {
+		t = GenericType
+	}
+
+	return
 }
