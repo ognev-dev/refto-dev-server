@@ -7,6 +7,7 @@ import (
 	"github.com/ognev-dev/bits/server/request"
 	"github.com/ognev-dev/bits/server/response"
 	"github.com/ognev-dev/bits/service/entity"
+	"github.com/ognev-dev/bits/service/topic"
 )
 
 func SearchEntities(c *gin.Context) {
@@ -21,9 +22,16 @@ func SearchEntities(c *gin.Context) {
 		return
 	}
 
+	topics, err := topic.Common(req.Topics)
+	if err != nil {
+		Abort(c, err)
+		return
+	}
+
 	resp := response.SearchEntity{
-		Data:  data,
-		Count: count,
+		Entities:      data,
+		EntitiesCount: count,
+		Topics:        topics,
 	}
 
 	c.JSON(http.StatusOK, resp)

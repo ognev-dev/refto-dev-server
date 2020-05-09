@@ -14,9 +14,6 @@ func MakeTopic(mOpt ...model.Topic) (m model.Topic, err error) {
 	if m.Name == "" {
 		m.Name = fake.Name()
 	}
-	if m.Color == "" {
-		m.Color = fake.Color()
-	}
 
 	return
 }

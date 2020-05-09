@@ -55,29 +55,45 @@ func TestSearchEntity(t *testing.T) {
 	// as they both have t1 and t2 (and ent1 missing t2)
 	req.Topics = []string{topic1.Name, topic2.Name}
 	TestSearch(t, "entities", req, &resp)
-	assert.Equals(t, 2, resp.Count)
-	for _, v := range resp.Data {
+	assert.Equals(t, 2, resp.EntitiesCount)
+	for _, v := range resp.Entities {
 		if v.ID == ent2.ID || v.ID == ent3.ID {
 			continue
 		}
 		t.Fatal("invalid entity in response")
 	}
+	// should get t3 as common topic
+	assert.Equals(t, 1, len(resp.Topics))
+	assert.Equals(t, topic3.ID, resp.Topics[0].ID)
+	assert.Equals(t, topic3.Name, resp.Topics[0].Name)
 
 	// should get only ent3
 	// (ent2 missing t3 and ent1 have none of them)
 	req.Topics = []string{topic2.Name, topic3.Name}
 	TestSearch(t, "entities", req, &resp)
-	assert.Equals(t, 1, resp.Count)
-	assert.Equals(t, ent3.ID, resp.Data[0].ID)
+	assert.Equals(t, 1, resp.EntitiesCount)
+	assert.Equals(t, ent3.ID, resp.Entities[0].ID)
+	// should get t1 as common topic
+	assert.Equals(t, 1, len(resp.Topics))
+	assert.Equals(t, topic1.ID, resp.Topics[0].ID)
+	assert.Equals(t, topic1.Name, resp.Topics[0].Name)
 
 	// should get ent1, ent2, ent3
 	req.Topics = []string{topic1.Name}
 	TestSearch(t, "entities", req, &resp)
-	assert.Equals(t, 3, resp.Count)
+	assert.Equals(t, 3, resp.EntitiesCount)
+	// should get t2 and t3 as common topics
+	assert.Equals(t, 2, len(resp.Topics))
+	assert.Equals(t, topic2.ID, resp.Topics[0].ID)
+	assert.Equals(t, topic2.Name, resp.Topics[0].Name)
+	assert.Equals(t, topic3.ID, resp.Topics[1].ID)
+	assert.Equals(t, topic3.Name, resp.Topics[1].Name)
 
 	// should get only ent3
 	req.Topics = []string{topic1.Name, topic2.Name, topic3.Name}
 	TestSearch(t, "entities", req, &resp)
-	assert.Equals(t, 1, resp.Count)
-	assert.Equals(t, ent3.ID, resp.Data[0].ID)
+	assert.Equals(t, 1, resp.EntitiesCount)
+	assert.Equals(t, ent3.ID, resp.Entities[0].ID)
+	// should not get common topics
+	assert.Equals(t, 0, len(resp.Topics))
 }
