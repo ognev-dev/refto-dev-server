@@ -26,15 +26,14 @@
           <a-col :span="6"  v-for="d in data" >
         <a-card  style="margin-bottom: 20px;" :headStyle="{'font-weight':'bold'}">
           <a slot="extra" v-if="d.type !== ''"><a-tag color="pink">{{d.data.type}}</a-tag></a>
+<!--          <a slot="extra"><a-icon type="edit" /></a>-->
           <a slot="title" :href="d.data.home_addr">{{d.data.title}}</a>
-          <div slot="actions" :href="d.data.home_addr" v-if="topicsDiff(d.data.topics).length > 0">
-            <a-button-group>
-            <a-button type="dashed" v-for="t in topicsDiff(d.data.topics)" @click="addTopic(t)">
-              {{t}}
-            </a-button>
-            </a-button-group>
-          </div>
           <p>{{d.data.description}}</p>
+          <a-button-group v-if="topicsDiff(d.data.topics).length > 0">
+            <a-button v-for="(t, i) in topicsDiff(d.data.topics)" @click="addTopic(t)" :key="i">
+              + {{t}}
+            </a-button>
+          </a-button-group>
         </a-card>
 
           </a-col>
@@ -114,3 +113,9 @@
         },
     };
 </script>
+
+<style>
+  .ant-card-actions li {
+    margin: -1px ;
+  }
+</style>
