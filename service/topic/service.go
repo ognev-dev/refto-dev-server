@@ -27,19 +27,20 @@ func Search(req request.SearchTopic) (data []model.Topic, count int, err error) 
 // For given topic B, should return A, C
 // For given topics A,B, should return C
 // For given topics A,E, should return D
-func Common(in []string) (data []model.Topic, err error) {
+func Common(in []string) (data []string, err error) {
 	// return all topics
 	if len(in) == 0 {
 		err = database.ORM().
-			Model(&data).
+			Model(&[]model.Topic{}).
+			Column("name").
 			Order("name").
-			Select()
+			Select(&data)
 		return
 	}
 
 	// select entities that having given topics
 	entities := database.ORM().
-		Model(&data).
+		Model(&[]model.Topic{}).
 		Column("e.id").
 		Join("JOIN entity_topics et ON et.topic_id=topic.id").
 		Join("JOIN entities e ON et.entity_id=e.id").
@@ -48,7 +49,7 @@ func Common(in []string) (data []model.Topic, err error) {
 	// select topics (of selected entities) that not a given topics
 	err = database.ORM().
 		Model().
-		Column("t.id", "t.name").
+		Column("t.name").
 		With("selected_entities", entities).
 		TableExpr("selected_entities se").
 		Join("JOIN entity_topics et ON et.entity_id=se.id").

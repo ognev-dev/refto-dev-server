@@ -2,69 +2,115 @@
   <a-layout>
     <a-layout-header>
       <a-select
+        size="large"
         mode="multiple"
-        label-in-value
-        :value="value"
-        placeholder="Select users"
         style="width: 100%"
-        :filter-option="false"
-        :not-found-content="fetching ? undefined : null"
-        @search="fetchUser"
-        @change="handleChange"
+        allowClear
+        showArrow
+        label-in-value
+        :value="selectedTopics"
+        :loading="loading"
+        placeholder="Select topics"
+        @change="handleTopicChange"
       >
-        <a-spin v-if="fetching" slot="notFoundContent" size="small" />
-        <a-select-option v-for="d in data" :key="d.value">
-          {{ d.text }}
+        <a-spin v-if="loading" slot="notFoundContent" size="small" />
+        <a-select-option v-for="item in topics" :key="item" :value="item">
+          {{ item }}
         </a-select-option>
       </a-select>
-
     </a-layout-header>
-      <a-layout-content>main content</a-layout-content>
+
+      <a-layout-content>
+        <div style="background-color: #ececec; padding: 20px;">
+        <a-row :gutter="16">
+          <a-col :span="6"  v-for="d in data" >
+        <a-card  style="margin-bottom: 20px;" :headStyle="{'font-weight':'bold'}">
+          <a slot="extra" v-if="d.type !== ''"><a-tag color="pink">{{d.data.type}}</a-tag></a>
+          <a slot="title" :href="d.data.home_addr">{{d.data.title}}</a>
+          <div slot="actions" :href="d.data.home_addr" v-if="topicsDiff(d.data.topics).length > 0">
+            <a-button-group>
+            <a-button type="dashed" v-for="t in topicsDiff(d.data.topics)" @click="addTopic(t)">
+              {{t}}
+            </a-button>
+            </a-button-group>
+          </div>
+          <p>{{d.data.description}}</p>
+        </a-card>
+
+          </a-col>
+        </a-row>
+        </div>
+
+      </a-layout-content>
     <a-layout-footer>footer</a-layout-footer>
   </a-layout>
 </template>
 <script>
-    import debounce from 'lodash/debounce';
-
     export default {
         data() {
-            this.lastFetchId = 0;
-            this.fetchUser = debounce(this.fetchUser, 800);
             return {
                 data: [],
-                value: [],
-                fetching: false,
+                topics: [],
+                selectedTopics: [],
+                loading: false
             };
         },
+
+        beforeMount() {
+            this.loadData()
+        },
+
         methods: {
-            fetchUser(value) {
-                console.log('fetching user', value);
-                this.lastFetchId += 1;
-                const fetchId = this.lastFetchId;
-                this.data = [];
-                this.fetching = true;
-                fetch('https://randomuser.me/api/?results=5')
-                    .then(response => response.json())
-                    .then(body => {
-                        if (fetchId !== this.lastFetchId) {
-                            // for fetch callback order
-                            return;
-                        }
-                        const data = body.results.map(user => ({
-                            text: `${user.name.first} ${user.name.last}`,
-                            value: user.login.username,
-                        }));
-                        this.data = data;
-                        this.fetching = false;
-                    });
+            async loadData() {
+                this.loading = true
+                // todo: there must be a better way to searialize array into query string
+                let path = '/entities/'
+                let qs = []
+                if (this.selectedTopics.length > 0) {
+                    for (let i = 0; i < this.selectedTopics.length; i++) {
+                        qs[i] = "topics=" + this.selectedTopics[i].key;
+                    }
+                }
+                if (qs.length > 0) {
+                    path += "?" + qs.join("&")
+                }
+
+                try {
+                    await this.$axios.$get(path).then((resp) => {
+                        this.data = resp.entities
+                        this.topics = resp.topics
+                    })
+                } catch (e) {
+                    this.$notify({
+                        type: 'error',
+                        title: 'Failed to load data',
+                        text: e.response.data.error
+                    })
+                }
+                this.loading = false
             },
-            handleChange(value) {
-                Object.assign(this, {
-                    value,
-                    data: [],
-                    fetching: false,
-                });
+
+            handleTopicChange(selectedTopics) {
+                this.topics = []
+                this.selectedTopics = selectedTopics;
+                this.loadData()
             },
+
+            topicsDiff(topics) {
+                let sTopics = []
+                for (let i = 0; i < this.selectedTopics.length; i++) {
+                    sTopics.push(this.selectedTopics[i].key)
+                }
+                return topics.filter(x => !sTopics.includes(x));
+            },
+
+            addTopic(t) {
+                this.selectedTopics.push({key: t, label: t})
+                this.loadData()
+            },
+        },
+
+        computed: {
         },
     };
 </script>

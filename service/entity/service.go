@@ -1,8 +1,6 @@
 package entity
 
 import (
-	"time"
-
 	"github.com/go-pg/pg/v9"
 	"github.com/ognev-dev/bits/database"
 	"github.com/ognev-dev/bits/database/filter"
@@ -61,11 +59,13 @@ func CreateOrUpdate(elem *model.Entity) (err error) {
 		old.Type = elem.Type
 		old.DeletedAt = nil
 
-		if old.Data != elem.Data {
-			now := time.Now()
-			old.Data = elem.Data
-			old.UpdatedAt = &now
-		}
+		old.Data = elem.Data
+		// TODO check if new data is different from new data and set updated_at
+		//if old.Data != elem.Data {
+		//	now := time.Now()
+		//	old.Data = elem.Data
+		//	old.UpdatedAt = &now
+		//}
 
 		err = database.ORM().Update(&old)
 		if err != nil {

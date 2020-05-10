@@ -1,7 +1,9 @@
+app_env: dev # dev | test | release
+
 db:
   addr: localhost:5432
-  user: vobook
-  password: vobook
+  user: root
+  password: root
   name: bits
   log_queries: true
 
@@ -12,7 +14,7 @@ server:
 
 dir:
   assets: "/path/to/assets"
-  data: "/home/vo/projects/bits-data/"
+  data: "/path/to/data"
   logs: ""
 
 date_format: '2006-01-02'

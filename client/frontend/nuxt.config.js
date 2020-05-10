@@ -37,10 +37,19 @@ export default {
   buildModules: [
   ],
   /*
-  ** Nuxt.js modules
-  */
+   ** Nuxt.js modules
+   */
   modules: [
+    // Doc: https://axios.nuxtjs.org/usage
+    '@nuxtjs/axios'
   ],
+  /*
+ ** Axios module configuration
+ ** See https://axios.nuxtjs.org/options
+ */
+  axios: {
+    baseURL: process.env.BITS_API_ADDR || 'http://localhost:8080/api'
+  },
   /*
   ** Build configuration
   */

@@ -27,11 +27,6 @@ type File struct {
 type schemas map[data.Type]Schema
 type bits map[data.Type][]File
 
-type errFile struct {
-	Path    string
-	Message string
-}
-
 type errStack []string
 
 func (e *errStack) Add(err error, wrapOpt ...string) {

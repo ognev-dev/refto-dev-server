@@ -84,7 +84,8 @@ func importEntitiesFromDir() (err error) {
 		token := strings.TrimPrefix(path, config.Get().Dir.Data)
 		token = strings.TrimSuffix(token, extWithType)
 
-		jsonData, err := yaml.YAMLToJSON(fData)
+		var entityData model.EntityData
+		err = yaml.Unmarshal(fData, &entityData)
 		if err != nil {
 			return
 		}
@@ -93,7 +94,7 @@ func importEntitiesFromDir() (err error) {
 			Token:     token,
 			Title:     dataEl.Title,
 			Type:      eType,
-			Data:      string(jsonData),
+			Data:      entityData,
 			CreatedAt: time.Now(),
 		}
 		err = entity.CreateOrUpdate(&entityEl)

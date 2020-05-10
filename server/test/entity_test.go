@@ -64,8 +64,7 @@ func TestSearchEntity(t *testing.T) {
 	}
 	// should get t3 as common topic
 	assert.Equals(t, 1, len(resp.Topics))
-	assert.Equals(t, topic3.ID, resp.Topics[0].ID)
-	assert.Equals(t, topic3.Name, resp.Topics[0].Name)
+	assert.Equals(t, topic3.Name, resp.Topics[0])
 
 	// should get only ent3
 	// (ent2 missing t3 and ent1 have none of them)
@@ -75,8 +74,7 @@ func TestSearchEntity(t *testing.T) {
 	assert.Equals(t, ent3.ID, resp.Entities[0].ID)
 	// should get t1 as common topic
 	assert.Equals(t, 1, len(resp.Topics))
-	assert.Equals(t, topic1.ID, resp.Topics[0].ID)
-	assert.Equals(t, topic1.Name, resp.Topics[0].Name)
+	assert.Equals(t, topic1.Name, resp.Topics[0])
 
 	// should get ent1, ent2, ent3
 	req.Topics = []string{topic1.Name}
@@ -84,10 +82,8 @@ func TestSearchEntity(t *testing.T) {
 	assert.Equals(t, 3, resp.EntitiesCount)
 	// should get t2 and t3 as common topics
 	assert.Equals(t, 2, len(resp.Topics))
-	assert.Equals(t, topic2.ID, resp.Topics[0].ID)
-	assert.Equals(t, topic2.Name, resp.Topics[0].Name)
-	assert.Equals(t, topic3.ID, resp.Topics[1].ID)
-	assert.Equals(t, topic3.Name, resp.Topics[1].Name)
+	assert.Equals(t, topic2.Name, resp.Topics[0])
+	assert.Equals(t, topic3.Name, resp.Topics[1])
 
 	// should get only ent3
 	req.Topics = []string{topic1.Name, topic2.Name, topic3.Name}

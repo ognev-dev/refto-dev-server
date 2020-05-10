@@ -22,8 +22,8 @@ func MakeEntity(mOpt ...model.Entity) (m model.Entity, err error) {
 	if m.Type == "" {
 		m.Type = "book"
 	}
-	if m.Data == "" {
-		m.Data = `{"key":"val"}`
+	if len(m.Data) == 0 {
+		m.Data = model.EntityData{"key": "val"}
 	}
 	if len(m.Topics) == 0 {
 		m.Topics = make([]model.Topic, 5)
