@@ -46,6 +46,7 @@ func Abort(c *gin.Context, err error) {
 	}
 
 	if !config.IsReleaseEnv() {
+		log.Println(err.Error())
 		log.Println(string(debug.Stack()))
 	}
 

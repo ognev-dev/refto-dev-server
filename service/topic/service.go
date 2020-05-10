@@ -44,7 +44,9 @@ func Common(in []string) (data []string, err error) {
 		Column("e.id").
 		Join("JOIN entity_topics et ON et.topic_id=topic.id").
 		Join("JOIN entities e ON et.entity_id=e.id").
-		WhereIn("topic.name IN (?)", in)
+		WhereIn("topic.name IN (?)", in).
+		Having("COUNT(topic.id) = ?", len(in)).
+		Group("e.id")
 
 	// select topics (of selected entities) that not a given topics
 	err = database.ORM().
