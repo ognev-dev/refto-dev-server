@@ -10,7 +10,7 @@ import (
 )
 
 const usageText = `
-BITS CLI
+REFTO.DEV CLI
 
 This program runs various commands to make dev's life simpler
 Enter h or help to list all available commands

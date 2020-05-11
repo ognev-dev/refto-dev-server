@@ -1,7 +1,7 @@
 {
-  "name": "bits-frontend",
+  "name": "refto-frontend",
   "version": "1.0.0",
-  "description": "bits frontend",
+  "description": "refto frontend",
   "author": "Vladimir Ognev",
   "private": true,
   "scripts": {

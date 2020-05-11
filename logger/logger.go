@@ -15,7 +15,7 @@ func Setup() {
 
 	filename := config.Get().Dir.Logs
 	if filename == "" {
-		filename = "bits.log"
+		filename = "server.log"
 	}
 
 	fileWriter := &lumberjack.Logger{

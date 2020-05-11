@@ -31,14 +31,9 @@ type Config struct {
 	}
 
 	Dir struct {
-		Assets string
 		Data   string
 		Logs   string
 	}
-
-	DateFormat     string `yaml:"date_format"`
-	TimeFormat     string `yaml:"time_format"`
-	DateTimeFormat string `yaml:"date_time_format"`
 }
 
 var conf *Config
@@ -62,16 +57,6 @@ func Get() *Config {
 	err = yaml.Unmarshal(yamlConf, &conf)
 	if err != nil {
 		panic(err)
-	}
-
-	if conf.DateFormat == "" {
-		conf.DateFormat = "2006-01-02"
-	}
-	if conf.TimeFormat == "" {
-		conf.TimeFormat = "15:04:05"
-	}
-	if conf.DateTimeFormat == "" {
-		conf.DateTimeFormat = conf.DateFormat + " " + conf.DateTimeFormat
 	}
 
 	return conf

@@ -42,7 +42,7 @@ type Request struct {
 const ContentTypeJSON = "application/json"
 
 func init() {
-	// changing working dir to bits/bin
+	// changing working dir to project root level
 	// I want to use main .config.yaml, thats why
 	err := os.Chdir("../..")
 	if err != nil {

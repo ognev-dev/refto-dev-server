@@ -4,7 +4,7 @@ db:
   addr: localhost:5432
   user: root
   password: root
-  name: bits
+  name: refto
   log_queries: true
 
 server:
@@ -13,10 +13,5 @@ server:
   api_base_path: api
 
 dir:
-  assets: "/path/to/assets"
-  data: "/path/to/data"
+  data: "/projects/refto/data/"
   logs: ""
-
-date_format: '2006-01-02'
-time_format: '15:04:05'
-date_time_format: '2006-01-02 15:04:05'

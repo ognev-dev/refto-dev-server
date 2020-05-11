@@ -48,7 +48,7 @@ export default {
  ** See https://axios.nuxtjs.org/options
  */
   axios: {
-    baseURL: process.env.BITS_API_ADDR || 'http://localhost:8080/api'
+    baseURL: process.env.REFTO_API_ADDR || 'http://localhost:8080/api'
   },
   /*
   ** Build configuration

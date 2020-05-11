@@ -1,4 +1,4 @@
-# bits Nuxt.js frontend
+# refto.dev Nuxt.js frontend
 
 ## Build Setup
 

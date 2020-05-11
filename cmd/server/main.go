@@ -34,11 +34,11 @@ func main() {
 		}
 	}()
 
-	log.Println("bits." + conf.AppEnv + " serving at " + conf.Server.Host + ":" + conf.Server.Port)
+	log.Println("refto." + conf.AppEnv + " serving at " + conf.Server.Host + ":" + conf.Server.Port)
 	err := server.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
 		log.Fatal(err.Error())
 	}
 
-	log.Println("bits." + conf.AppEnv + " server closed")
+	log.Println("refto." + conf.AppEnv + " server closed")
 }

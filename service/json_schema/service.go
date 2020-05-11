@@ -25,7 +25,7 @@ type File struct {
 }
 
 type schemas map[data.Type]Schema
-type bits map[data.Type][]File
+type filesByType map[data.Type][]File
 
 type errStack []string
 
@@ -43,7 +43,7 @@ func (e errStack) Error() string {
 // Validate validates each YAML doc against JSON schema of it's type
 func Validate() (err error) {
 	schemasRepo := schemas{}
-	bitsRepo := bits{}
+	dataRepo := filesByType{}
 	errs := errStack{}
 
 	// collect schemas along with data (to not walk dirs seconds time)
@@ -72,12 +72,15 @@ func Validate() (err error) {
 		}
 
 		t := data.TypeFromFilename(path)
-		bitsByType, ok := bitsRepo[t]
+		files, ok := dataRepo[t]
 		if !ok {
-			bitsByType = []File{}
+			files = []File{}
 		}
-		bitsByType = append(bitsByType, File{Path: path, Data: jsonBytes})
-		bitsRepo[t] = bitsByType
+		files = append(files, File{
+			Path: path,
+			Data: jsonBytes,
+		})
+		dataRepo[t] = files
 
 		return nil
 	})
@@ -88,8 +91,8 @@ func Validate() (err error) {
 	}
 
 	// iterate over collected data and validate each
-	for t, bitsByType := range bitsRepo {
-		for _, v := range bitsByType {
+	for t, files := range dataRepo {
+		for _, v := range files {
 			schema, ok := schemasRepo[t]
 			if !ok {
 				errs.Add(fmt.Errorf("schema of type '%s' is not exists (source '%s')", t, relPath(v.Path)))

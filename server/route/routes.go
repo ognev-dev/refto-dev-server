@@ -17,7 +17,7 @@ func Register(r *gin.Engine) {
 	api := r.Group(conf.Server.ApiBasePath)
 	api.Use()
 	api.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "bits."+conf.AppEnv)
+		c.String(http.StatusOK, "refto."+conf.AppEnv)
 	})
 
 	apply(api,

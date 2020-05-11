@@ -27,7 +27,7 @@ func connect() *pg.DB {
 		User:            conf.DB.User,
 		Password:        conf.DB.Password,
 		Database:        conf.DB.Name,
-		ApplicationName: "bits." + conf.AppEnv,
+		ApplicationName: "refto." + conf.AppEnv,
 	})
 
 	conn.AddQueryHook(dbLogger{})
