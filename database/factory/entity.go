@@ -3,9 +3,9 @@ package factory
 import (
 	fake "github.com/brianvoe/gofakeit"
 	"github.com/go-pg/pg/v9"
-	"github.com/ognev-dev/bits/database"
-	"github.com/ognev-dev/bits/database/model"
-	entitytopic "github.com/ognev-dev/bits/service/entity_topic"
+	"github.com/refto/server/database"
+	"github.com/refto/server/database/model"
+	entitytopic "github.com/refto/server/service/entity_topic"
 )
 
 func MakeEntity(mOpt ...model.Entity) (m model.Entity, err error) {

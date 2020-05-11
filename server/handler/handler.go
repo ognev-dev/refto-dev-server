@@ -6,9 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg/v9"
-	"github.com/ognev-dev/bits/config"
-	serverError "github.com/ognev-dev/bits/server/error"
-	"github.com/ognev-dev/bits/server/response"
+	"github.com/refto/server/config"
+	serverError "github.com/refto/server/server/error"
+	"github.com/refto/server/server/response"
 	log "github.com/sirupsen/logrus"
 )
 

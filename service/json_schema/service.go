@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ognev-dev/bits/config"
-	"github.com/ognev-dev/bits/service/data"
+	"github.com/refto/server/config"
+	"github.com/refto/server/service/data"
 	"github.com/xeipuuv/gojsonschema"
 )
 

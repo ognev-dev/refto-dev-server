@@ -2,7 +2,7 @@ package route
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/ognev-dev/bits/server/handler"
+	"github.com/refto/server/server/handler"
 )
 
 func topicRoutes(r *gin.RouterGroup) {

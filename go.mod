@@ -1,4 +1,4 @@
-module github.com/ognev-dev/bits
+module github.com/refto/server
 
 go 1.14
 

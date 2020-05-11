@@ -7,9 +7,9 @@ import (
 	"os/signal"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ognev-dev/bits/config"
-	"github.com/ognev-dev/bits/logger"
-	"github.com/ognev-dev/bits/server/route"
+	"github.com/refto/server/config"
+	"github.com/refto/server/logger"
+	"github.com/refto/server/server/route"
 )
 
 func main() {

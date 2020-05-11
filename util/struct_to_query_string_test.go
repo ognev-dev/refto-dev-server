@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ognev-dev/bits/test/assert"
-	"github.com/ognev-dev/bits/util"
+	"github.com/refto/server/test/assert"
+	"github.com/refto/server/util"
 )
 
 func TestStructToQueryString(t *testing.T) {

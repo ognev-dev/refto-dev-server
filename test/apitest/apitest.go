@@ -13,12 +13,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg/v9/orm"
-	"github.com/ognev-dev/bits/config"
-	"github.com/ognev-dev/bits/database"
-	"github.com/ognev-dev/bits/logger"
-	"github.com/ognev-dev/bits/server/route"
-	"github.com/ognev-dev/bits/test/assert"
-	"github.com/ognev-dev/bits/util"
+	"github.com/refto/server/config"
+	"github.com/refto/server/database"
+	"github.com/refto/server/logger"
+	"github.com/refto/server/server/route"
+	"github.com/refto/server/test/assert"
+	"github.com/refto/server/util"
 )
 
 var (

@@ -4,7 +4,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/ognev-dev/bits/config"
+	"github.com/refto/server/config"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
 )

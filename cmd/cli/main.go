@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ognev-dev/bits/cmd/cli/commands"
+	"github.com/refto/server/cmd/cli/commands"
 )
 
 const usageText = `

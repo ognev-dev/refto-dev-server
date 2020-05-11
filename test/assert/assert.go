@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/go-pg/pg/v9"
-	"github.com/ognev-dev/bits/database"
-	"github.com/ognev-dev/bits/util"
+	"github.com/refto/server/database"
+	"github.com/refto/server/util"
 	ta "github.com/stretchr/testify/assert"
 )
 

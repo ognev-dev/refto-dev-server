@@ -1,6 +1,6 @@
 package response
 
-import "github.com/ognev-dev/bits/database/model"
+import "github.com/refto/server/database/model"
 
 type SearchEntity struct {
 	Entities      []model.Entity `json:"entities"`

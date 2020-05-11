@@ -4,13 +4,13 @@ import (
 	"testing"
 
 	"github.com/go-pg/pg/v9"
-	"github.com/ognev-dev/bits/database"
-	"github.com/ognev-dev/bits/database/factory"
-	"github.com/ognev-dev/bits/database/model"
-	"github.com/ognev-dev/bits/server/request"
-	"github.com/ognev-dev/bits/server/response"
-	. "github.com/ognev-dev/bits/test/apitest"
-	"github.com/ognev-dev/bits/test/assert"
+	"github.com/refto/server/database"
+	"github.com/refto/server/database/factory"
+	"github.com/refto/server/database/model"
+	"github.com/refto/server/server/request"
+	"github.com/refto/server/server/response"
+	. "github.com/refto/server/test/apitest"
+	"github.com/refto/server/test/assert"
 )
 
 func TestSearchTopic(t *testing.T) {

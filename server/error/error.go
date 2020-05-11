@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/ognev-dev/bits/config"
+	"github.com/refto/server/config"
 )
 
 func New400(message string) error {

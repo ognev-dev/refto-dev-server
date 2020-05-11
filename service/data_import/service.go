@@ -8,13 +8,13 @@ import (
 	"time"
 
 	"github.com/ghodss/yaml"
-	"github.com/ognev-dev/bits/config"
-	"github.com/ognev-dev/bits/database"
-	"github.com/ognev-dev/bits/database/model"
-	"github.com/ognev-dev/bits/service/data"
-	"github.com/ognev-dev/bits/service/entity"
-	entitytopic "github.com/ognev-dev/bits/service/entity_topic"
-	"github.com/ognev-dev/bits/service/topic"
+	"github.com/refto/server/config"
+	"github.com/refto/server/database"
+	"github.com/refto/server/database/model"
+	"github.com/refto/server/service/data"
+	"github.com/refto/server/service/entity"
+	entitytopic "github.com/refto/server/service/entity_topic"
+	"github.com/refto/server/service/topic"
 )
 
 func Process() (err error) {

@@ -1,7 +1,7 @@
 package commands
 
 import (
-	jsonschema "github.com/ognev-dev/bits/service/json_schema"
+	jsonschema "github.com/refto/server/service/json_schema"
 )
 
 func init() {

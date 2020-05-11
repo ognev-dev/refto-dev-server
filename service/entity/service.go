@@ -2,10 +2,10 @@ package entity
 
 import (
 	"github.com/go-pg/pg/v9"
-	"github.com/ognev-dev/bits/database"
-	"github.com/ognev-dev/bits/database/filter"
-	"github.com/ognev-dev/bits/database/model"
-	"github.com/ognev-dev/bits/server/request"
+	"github.com/refto/server/database"
+	"github.com/refto/server/database/filter"
+	"github.com/refto/server/database/model"
+	"github.com/refto/server/server/request"
 )
 
 func Search(req request.SearchEntity) (data []model.Entity, count int, err error) {

@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-pg/pg/v9"
 	"github.com/go-pg/pg/v9/orm"
-	"github.com/ognev-dev/bits/database"
+	"github.com/refto/server/database"
 )
 
 type command struct {

@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ognev-dev/bits/server/request"
-	"github.com/ognev-dev/bits/server/response"
-	"github.com/ognev-dev/bits/service/entity"
-	"github.com/ognev-dev/bits/service/topic"
+	"github.com/refto/server/server/request"
+	"github.com/refto/server/server/response"
+	"github.com/refto/server/service/entity"
+	"github.com/refto/server/service/topic"
 )
 
 func SearchEntities(c *gin.Context) {

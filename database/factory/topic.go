@@ -2,8 +2,8 @@ package factory
 
 import (
 	fake "github.com/brianvoe/gofakeit"
-	"github.com/ognev-dev/bits/database"
-	"github.com/ognev-dev/bits/database/model"
+	"github.com/refto/server/database"
+	"github.com/refto/server/database/model"
 )
 
 func MakeTopic(mOpt ...model.Topic) (m model.Topic, err error) {

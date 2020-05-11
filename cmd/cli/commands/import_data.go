@@ -1,6 +1,6 @@
 package commands
 
-import dataimport "github.com/ognev-dev/bits/service/data_import"
+import dataimport "github.com/refto/server/service/data_import"
 
 func init() {
 	add("import", command{

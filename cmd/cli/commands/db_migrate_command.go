@@ -3,8 +3,8 @@ package commands
 import (
 	"fmt"
 
-	"github.com/ognev-dev/bits/database"
-	"github.com/ognev-dev/bits/database/migration"
+	"github.com/refto/server/database"
+	"github.com/refto/server/database/migration"
 )
 
 func init() {
