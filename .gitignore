@@ -10,3 +10,4 @@
 *.log
 
 .config.yaml
+bin
