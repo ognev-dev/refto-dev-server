@@ -7,6 +7,7 @@ require (
 	github.com/brianvoe/gofakeit v3.18.0+incompatible
 	github.com/ghodss/yaml v1.0.0
 	github.com/gin-contrib/cors v1.3.1
+	github.com/gin-contrib/static v0.0.0-20191128031702-f81c604d8ac2
 	github.com/gin-gonic/autotls v0.0.0-20200314141124-cc69476aef2a
 	github.com/gin-gonic/gin v1.6.2
 	github.com/go-pg/migrations/v7 v7.1.10

@@ -1,10 +1,10 @@
 package route
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/refto/server/config"
 )
@@ -13,12 +13,10 @@ func Register(r *gin.Engine) {
 	conf := config.Get()
 
 	r.Use(corsConfig())
+	r.Use(static.Serve("/", static.LocalFile("./static", false)))
 
 	api := r.Group(conf.Server.ApiBasePath)
 	api.Use()
-	api.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "refto."+conf.AppEnv)
-	})
 
 	apply(api,
 		entityRoutes,
