@@ -1,12 +1,16 @@
 package route
 
 import (
+	"io/ioutil"
+	"net/http"
+	"path/filepath"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/refto/server/config"
+	"github.com/sirupsen/logrus"
 )
 
 func Register(r *gin.Engine) {
@@ -22,6 +26,17 @@ func Register(r *gin.Engine) {
 		entityRoutes,
 		topicRoutes,
 	)
+
+	r.NoRoute(func(c *gin.Context) {
+		data, err := ioutil.ReadFile(filepath.Join("./static", static.INDEX))
+		if err != nil {
+			logrus.Error(err)
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+
+		c.Data(http.StatusOK, "text/html", data)
+	})
 }
 
 func apply(rg *gin.RouterGroup, routeFn ...func(*gin.RouterGroup)) {
