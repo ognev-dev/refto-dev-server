@@ -30,6 +30,10 @@ dbAddr=localhost:5432
 dbName=postgres
 dbUser=postgres
 dbPassword=postgres
+# data repository to clone data from
+dataRepo=https://github.com/refto/data.git
+# This is the same secret you set on GitHub's push hook of the repo above
+dataPushedHookSecret=SomeSecretToSignHooks
 
 # necessary checks
 if [ -z "$remoreAddr"  ]
@@ -108,6 +112,10 @@ server:
   host: $serverHost
   port: $serverPort
   api_base_path: api
+
+github:
+  data_repo: $dataRepo
+  data_pushed_hook_secret: $dataPushedHookSecret
 
 dir:
   data: "$remoteProjectDir/data"

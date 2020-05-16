@@ -31,9 +31,14 @@ type Config struct {
 	}
 
 	Dir struct {
-		Data   string
-		Logs   string
+		Data string
+		Logs string
 	}
+
+	GitHub struct {
+		DataRepo             string `yaml:"data_repo"`
+		DataPushedHookSecret string `yaml:"data_pushed_hook_secret"`
+	} `yaml:"github"`
 }
 
 var conf *Config

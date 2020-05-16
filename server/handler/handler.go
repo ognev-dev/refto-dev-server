@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"bytes"
+	"io/ioutil"
 	"net/http"
 	"runtime/debug"
 
@@ -83,4 +85,14 @@ func bindQuery(c *gin.Context, req Validatable) (ok bool) {
 	}
 
 	return true
+}
+
+func copyRequestBody(c *gin.Context) (body []byte, err error) {
+	body, err = ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		return
+	}
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body)) // Write body back
+
+	return
 }

@@ -12,6 +12,12 @@ server:
   port: 8080
   api_base_path: api
 
+github:
+  data_repo: https://github.com/refto/data.git
+
+  # This is the same secret you set on GitHub's push hook of the repo above
+  data_pushed_hook_secret: SomeSecretToSignHooks
+
 dir:
   data: "/projects/refto/data/"
   logs: ""
