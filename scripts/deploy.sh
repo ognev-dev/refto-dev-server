@@ -15,8 +15,8 @@
 # set variables required for deploy
 
 # server's host & port
-serverHost=
-serverPort=
+serverHost=refto.dev
+serverPort=443
 # local project's dir to deploy from
 projectDir=
 # remote project's dir to deploy to
@@ -99,7 +99,7 @@ mv ~/refto-cli $remoteProjectDir/cli || exit
 
 echo "Writing config..."
 /bin/cat <<EOM > $remoteProjectDir/.config.yaml
-app_env: dev
+app_env: release
 
 db:
   addr: $dbAddr
