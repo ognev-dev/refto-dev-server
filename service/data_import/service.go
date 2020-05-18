@@ -129,14 +129,14 @@ func importEntitiesFromDir() (err error) {
 }
 
 func addTypeToTopics(data model.EntityData, t string) model.EntityData {
-	newTopics := []string{t}
+	newTopics := []interface{}{t}
 	dt, ok := data["topics"]
 	if !ok {
 		data["topics"] = newTopics
 		return data
 	}
 
-	topics, ok := dt.([]string)
+	topics, ok := dt.([]interface{})
 	if !ok {
 		data["topics"] = newTopics
 		return data
