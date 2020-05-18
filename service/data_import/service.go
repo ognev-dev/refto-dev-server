@@ -90,6 +90,12 @@ func importEntitiesFromDir() (err error) {
 			return
 		}
 
+		// prepend data type to topics
+		if eType != "" {
+			entityData = addTypeToTopics(entityData, eType)
+			dataEl.Topics = append([]string{eType}, dataEl.Topics...)
+		}
+
 		entityEl := model.Entity{
 			Token:     token,
 			Title:     dataEl.Title,
@@ -120,4 +126,22 @@ func importEntitiesFromDir() (err error) {
 	})
 
 	return
+}
+
+func addTypeToTopics(data model.EntityData, t string) model.EntityData {
+	newTopics := []string{t}
+	dt, ok := data["topics"]
+	if !ok {
+		data["topics"] = newTopics
+		return data
+	}
+
+	topics, ok := dt.([]string)
+	if !ok {
+		data["topics"] = newTopics
+		return data
+	}
+
+	data["topics"] = append(newTopics, topics...)
+	return data
 }
