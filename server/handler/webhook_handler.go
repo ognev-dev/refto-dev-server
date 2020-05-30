@@ -37,7 +37,13 @@ func ImportDataFromRepoByGitHubWebHook(c *gin.Context) {
 		return
 	}
 
-	if !githubwebhook.ValidMAC(body, headers.EventSig, conf.GitHub.DataPushedHookSecret) {
+	validSig, err := githubwebhook.ValidMAC(body, headers.EventSig, conf.GitHub.DataPushedHookSecret)
+	if err != nil {
+		log.Error("[ERROR] " + err.Error())
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	if !validSig {
 		log.Error("github's data pushed webhook invalid signature")
 		c.AbortWithStatus(http.StatusBadRequest)
 		return

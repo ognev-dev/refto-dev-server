@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"reflect"
@@ -87,5 +86,5 @@ func Run(name string, args ...string) (err error) {
 		return nil
 	}
 
-	return errors.New(fmt.Sprintf("Unknown command %s, type help to see all available commands\n", name))
+	return fmt.Errorf("Unknown command %s, type help to see all available commands\n", name)
 }

@@ -73,6 +73,9 @@ then
 fi
 cd $projectDir || exit
 
+# lint
+/home/vo/go/bin/golangci-lint run || { echo "Fix above errors young apprentice"; exit; }
+
 # test api
 cd ./server/test || exit
 echo "Testing API..."

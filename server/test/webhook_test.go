@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/refto/server/test/assert"
+
 	"github.com/refto/server/config"
 	"github.com/refto/server/server/request"
 	githubwebhook "github.com/refto/server/service/github_webhook"
@@ -25,10 +27,11 @@ func TestWebhookDataPushed(t *testing.T) {
 		},
 	}
 
-	sig := githubwebhook.HashMAC(
+	sig, err := githubwebhook.HashMAC(
 		`{"repository":{"clone_url":"`+conf.GitHub.DataRepo+`"}}`,
 		conf.GitHub.DataPushedHookSecret,
 	)
+	assert.NotError(t, err)
 
 	POST(t, Request{
 		Path:         "hooks/data-pushed",

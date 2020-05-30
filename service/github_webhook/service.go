@@ -6,6 +6,7 @@ import (
 	"fmt"
 )
 
+// GitHub adds a prefix "sha1=" to the hash
 const SigPrefix = "sha1="
 
 // HashMAC generates hmac of given body and key
@@ -14,17 +15,26 @@ const SigPrefix = "sha1="
 // This header will be sent if the webhook is configured with a secret.
 // The HMAC hex digest is generated using the sha1 hash function and the secret as the HMAC key.
 // Note: github also adds a prefix "sha1=" to the hash
-func HashMAC(body, key string) string {
+func HashMAC(body, key string) (hash string, err error) {
 	h := hmac.New(sha1.New, []byte(key))
-	h.Write([]byte(body))
+	_, err = h.Write([]byte(body))
+	if err != nil {
+		return
+	}
 
-	return SigPrefix + fmt.Sprintf("%+x", h.Sum(nil))
+	hash = SigPrefix + fmt.Sprintf("%+x", h.Sum(nil))
+	return
 }
 
-func ValidMAC(body []byte, hash, key string) bool {
+func ValidMAC(body []byte, hash, key string) (ok bool, err error) {
 	h := hmac.New(sha1.New, []byte(key))
-	h.Write(body)
-	expected := fmt.Sprintf("%x", h.Sum(nil))
+	_, err = h.Write(body)
+	if err != nil {
+		return
+	}
 
-	return hash == (SigPrefix + expected)
+	expected := fmt.Sprintf("%x", h.Sum(nil))
+	ok = hash == (SigPrefix + expected)
+
+	return
 }

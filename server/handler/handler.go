@@ -30,9 +30,8 @@ func Abort(c *gin.Context, err error) {
 	resp := response.Error{}
 	code := http.StatusInternalServerError
 
-	switch err.(type) {
+	switch e := err.(type) {
 	case serverError.Error:
-		e := err.(serverError.Error)
 		code = e.Code
 		resp.Error = e.Error()
 	case serverError.List:
@@ -55,6 +54,8 @@ func Abort(c *gin.Context, err error) {
 	c.AbortWithStatusJSON(code, resp)
 }
 
+// TODO this func will be needed later for json binding on post/put request
+// nolint
 func bindJSON(c *gin.Context, req Validatable) (ok bool) {
 	err := c.ShouldBindJSON(req)
 	if err != nil {
