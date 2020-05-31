@@ -10,5 +10,5 @@ func init() {
 }
 
 func importData(args ...string) (err error) {
-	return dataimport.Process()
+	return dataimport.Import()
 }

@@ -17,7 +17,7 @@ import (
 	"github.com/refto/server/service/topic"
 )
 
-func Process() (err error) {
+func Import() (err error) {
 	// Mark all data as deleted,
 	// and while importing restore existing entities
 	// Entities still marked as deleted after import should be deleted for real
@@ -36,7 +36,7 @@ func Process() (err error) {
 		return
 	}
 
-	err = importEntitiesFromDir()
+	err = importDataFromDir()
 	if err != nil {
 		return
 	}
@@ -49,7 +49,7 @@ func Process() (err error) {
 	return
 }
 
-func importEntitiesFromDir() (err error) {
+func importDataFromDir() (err error) {
 	err = filepath.Walk(config.Get().Dir.Data, func(path string, f os.FileInfo, wErr error) (err error) {
 		if wErr != nil {
 			return wErr

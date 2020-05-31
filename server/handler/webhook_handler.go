@@ -86,7 +86,7 @@ func ImportDataFromRepoByGitHubWebHook(c *gin.Context) {
 			return
 		}
 
-		err = dataimport.Process()
+		err = dataimport.Import()
 		if err != nil {
 			log.Error("[ERROR] data validate: " + err.Error())
 			return
