@@ -17,6 +17,16 @@ import (
 	"github.com/refto/server/service/topic"
 )
 
+// type of data is added as topic
+// but some exceptions exist
+var autoTopicExceptions = []string{
+	// software is too broad topic
+	// each data should expand meaning of "software" in topics
+	// for example: database, chat, media-player, etc
+	// and topic "software" becomes redundant
+	"software",
+}
+
 func Import() (err error) {
 	// Mark all data as deleted,
 	// and while importing restore existing entities
@@ -91,7 +101,7 @@ func importDataFromDir() (err error) {
 		}
 
 		// prepend data type to topics
-		if eType != "" {
+		if eType != "" && useTypeAsTopic(eType) {
 			entityData = addTypeToTopics(entityData, eType)
 			dataEl.Topics = append([]string{eType}, dataEl.Topics...)
 		}
@@ -144,4 +154,14 @@ func addTypeToTopics(data model.EntityData, t string) model.EntityData {
 
 	data["topics"] = append(newTopics, topics...)
 	return data
+}
+
+func useTypeAsTopic(t string) bool {
+	for _, v := range autoTopicExceptions {
+		if v == t {
+			return false
+		}
+	}
+
+	return true
 }
