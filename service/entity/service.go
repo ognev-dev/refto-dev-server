@@ -13,6 +13,17 @@ func Search(req request.SearchEntity) (data []model.Entity, count int, err error
 		Model(&data).
 		Apply(filter.PageFilter(req.Page, req.Limit))
 
+	if req.Name != "" {
+		q.Where("title ILIKE ?", "%"+req.Name+"%")
+	}
+	if req.Addr != "" {
+		q.Where("data ->> 'home_addr' IS NOT NULL AND data ->> 'home_addr' ILIKE ?", "%"+req.Addr+"%")
+	}
+	if req.Query != "" {
+		// TODO this query will also match keys, but I need only values
+		q.Where("data::text  ILIKE ?", "%"+req.Query+"%")
+	}
+
 	if len(req.Topics) > 0 {
 		q.Join("JOIN entity_topics et ON et.entity_id=entity.id").
 			Join("JOIN topics t ON et.topic_id=t.id").
