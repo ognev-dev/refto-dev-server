@@ -15,7 +15,7 @@ func PageFilter(page, limit int) Filter {
 	}
 	offset := 0
 	if page > 1 {
-		offset = page * limit
+		offset = (page - 1) * limit
 	}
 
 	return func(q *orm.Query) (*orm.Query, error) {

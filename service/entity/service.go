@@ -40,11 +40,10 @@ func Search(req request.SearchEntity) (data []model.Entity, count int, err error
 			Group("entity.id")
 	}
 
-	// this will yield same results as with query from next comparison (topics > 1)
-	// but this query just faster because no need for IN and HAVING
-	// as it can be exact match
 	if len(req.Topics) == 1 {
-		q.Where("t.name = ?", req.Topics[0])
+		q.Where("t.name = ?", req.Topics[0]).
+			// Add specific order when only one topic is selected
+			OrderExpr("array_position(array['person', 'book', 'conference', 'software']::text[], type)")
 	}
 
 	if len(req.Topics) > 1 {
