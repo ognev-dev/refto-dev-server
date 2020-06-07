@@ -8,6 +8,16 @@ import (
 	"github.com/refto/server/server/request"
 )
 
+// Definitions is a special kind of data that displayed only if one topic selected
+// Should filter out definitions from regular data
+const DefinitionType = "definition"
+
+// To get needed definition I need to know its token
+// And since token is a path to data, i need to know that path to build valid token
+// So all definitions should be stored in one location
+// and it must be persistent
+const DefinitionTokenPrefix = "definitions/"
+
 func Search(req request.SearchEntity) (data []model.Entity, count int, err error) {
 	q := database.ORM().
 		Model(&data).
@@ -20,7 +30,7 @@ func Search(req request.SearchEntity) (data []model.Entity, count int, err error
 		q.Where("data ->> 'home_addr' IS NOT NULL AND data ->> 'home_addr' ILIKE ?", "%"+req.Addr+"%")
 	}
 	if req.Query != "" {
-		// TODO this query will also match keys, but I need only values
+		// TODO this query will also match keys, but only values needed
 		q.Where("data::text  ILIKE ?", "%"+req.Query+"%")
 	}
 
@@ -42,8 +52,29 @@ func Search(req request.SearchEntity) (data []model.Entity, count int, err error
 			Having("COUNT(t.id) = ?", len(req.Topics))
 	}
 
+	// should not match definitions
+	if len(req.Topics) > 0 {
+		q.Where("type != ?", DefinitionType)
+	}
+
 	q.OrderExpr("updated_at DESC, created_at DESC")
 	count, err = q.SelectAndCount()
+
+	return
+}
+
+func Definition(name string) (def *model.Entity, err error) {
+	def = &model.Entity{}
+	err = database.ORM().
+		Model(def).
+		Where("type = ?", DefinitionType).
+		Where("token = ?", DefinitionTokenPrefix+name).
+		First()
+
+	if err == pg.ErrNoRows {
+		def = nil
+		err = nil
+	}
 
 	return
 }

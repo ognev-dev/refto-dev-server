@@ -25,6 +25,11 @@ var autoTopicExceptions = []string{
 	// for example: database, chat, media-player, etc
 	// and topic "software" becomes redundant
 	"software",
+
+	// definition is special kind of data that describes topic
+	// and returned if only one topic selected
+	// so "definition" must be hidden, as it is makes no sense
+	"definition",
 }
 
 func Import() (err error) {
@@ -100,9 +105,17 @@ func importDataFromDir() (err error) {
 			return
 		}
 
-		// prepend data type to topics
+		// prepend
+		prependTopics := make([]string, 0)
 		if eType != "" && useTypeAsTopic(eType) {
-			entityData = addTypeToTopics(entityData, eType)
+			prependTopics = append(prependTopics, eType)
+		}
+		if eType == "definition" {
+			prependTopics = append(prependTopics, nameParts[len(nameParts)-3])
+		}
+
+		if len(prependTopics) > 0 {
+			entityData = addTypeToTopics(entityData, prependTopics...)
 			dataEl.Topics = append([]string{eType}, dataEl.Topics...)
 		}
 
@@ -138,8 +151,11 @@ func importDataFromDir() (err error) {
 	return
 }
 
-func addTypeToTopics(data model.EntityData, t string) model.EntityData {
-	newTopics := []interface{}{t}
+func addTypeToTopics(data model.EntityData, t ...string) model.EntityData {
+	newTopics := make([]interface{}, len(t))
+	for i, v := range t {
+		newTopics[i] = v
+	}
 	dt, ok := data["topics"]
 	if !ok {
 		data["topics"] = newTopics

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/refto/server/database/model"
 	"github.com/refto/server/server/request"
 	"github.com/refto/server/server/response"
 	"github.com/refto/server/service/entity"
@@ -14,6 +15,18 @@ func SearchEntities(c *gin.Context) {
 	var req request.SearchEntity
 	if !bindQuery(c, &req) {
 		return
+	}
+
+	var (
+		definition *model.Entity
+		err        error
+	)
+	if len(req.Topics) == 1 && req.Page < 2 {
+		definition, err = entity.Definition(req.Topics[0])
+		if err != nil {
+			Abort(c, err)
+			return
+		}
 	}
 
 	data, count, err := entity.Search(req)
@@ -29,6 +42,7 @@ func SearchEntities(c *gin.Context) {
 	}
 
 	resp := response.SearchEntity{
+		Definition:    definition,
 		Entities:      data,
 		EntitiesCount: count,
 		Topics:        topics,
