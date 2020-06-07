@@ -121,7 +121,7 @@ github:
   data_pushed_hook_secret: $dataPushedHookSecret
 
 dir:
-  data: "$remoteProjectDir/data"
+  data: "$remoteProjectDir/data/"
   logs: ""
 EOM
 
