@@ -1,5 +1,7 @@
 package request
 
+import githubpullrequest "github.com/refto/server/service/github_pull_request"
+
 // docs: https://developer.github.com/webhooks/event-payloads/#example-delivery
 
 type GitHubWebHookHeaders struct {
@@ -20,4 +22,29 @@ type GitHubRepoPushed struct {
 
 type GitHubRepoPushedRepo struct {
 	CloneURL string `json:"clone_url" binding:"required"`
+}
+
+type GitHubPullRequestEvent struct {
+	Action      githubpullrequest.Action `json:"action"`
+	Number      int                      `json:"number"`
+	PullRequest GitHubPullRequest        `json:"pull_request"`
+}
+
+type GitHubPullRequest struct {
+	User       GitHubUser      `json:"user"`
+	CommitsURL string          `json:"commits_url"`
+	Head       PullRequestHead `json:"head"`
+}
+
+type GitHubUser struct {
+	Login string `json:"login"`
+}
+
+type PullRequestHead struct {
+	SHA  string              `json:"sha"`
+	Repo PullRequestHeadRepo `json:"repo"`
+}
+
+type PullRequestHeadRepo struct {
+	CloneURL string `json:"clone_url"`
 }

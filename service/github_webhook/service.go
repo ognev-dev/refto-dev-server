@@ -6,6 +6,9 @@ import (
 	"fmt"
 )
 
+const PushEvent = "push"
+const PullRequestEvent = "pull_request"
+
 // GitHub adds a prefix "sha1=" to the hash
 const SigPrefix = "sha1="
 

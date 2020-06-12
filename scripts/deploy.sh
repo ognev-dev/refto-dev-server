@@ -74,7 +74,7 @@ fi
 cd $projectDir || exit
 
 # lint
-/home/vo/go/bin/golangci-lint run || { echo "Fix above errors young apprentice"; exit; }
+/home/vo/go/bin/golangci-lint run || { echo "Fix above errors, young apprentice"; exit; }
 
 # test api
 cd ./server/test || exit
@@ -89,7 +89,7 @@ echo "Compiling CLI..."
 go build -ldflags "-s -w" -o ./bin/refto-cli cmd/cli/main.go || exit
 
 echo "Copying binaries to remote (${remoteUser}@${remoreAddr})..."
-scp ./bin/refto-server ./bin/refto-cli ${remoteUser}@${remoreAddr}:~/
+scp ./bin/refto-server ./bin/refto-cli ${remoteUser}@${remoreAddr}:~/ || exit
 
 echo "Setting up server on remote..."
 ssh -T ${remoteUser}@${remoreAddr} << EOF
@@ -119,6 +119,10 @@ server:
 github:
   data_repo: $dataRepo
   data_pushed_hook_secret: $dataPushedHookSecret
+  data_warden:
+    app_id: 1
+    install_id: 1
+    pem_path: "private-key.pem"
 
 dir:
   data: "$remoteProjectDir/data/"

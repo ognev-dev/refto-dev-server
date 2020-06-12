@@ -7,4 +7,5 @@ import (
 
 func webHookRoutes(r *gin.RouterGroup) {
 	r.POST("hooks/data-pushed/", handler.ImportDataFromRepoByGitHubWebHook)
+	r.POST("hooks/pull-request/", handler.ProcessPullRequestActions)
 }

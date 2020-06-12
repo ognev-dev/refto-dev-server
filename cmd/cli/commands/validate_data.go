@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"github.com/refto/server/config"
 	jsonschema "github.com/refto/server/service/json_schema"
 )
 
@@ -12,5 +13,10 @@ func init() {
 }
 
 func validateData(args ...string) (err error) {
-	return jsonschema.Validate()
+	dirPath := config.Get().Dir.Data
+	if len(args) > 0 {
+		dirPath = args[0]
+	}
+
+	return jsonschema.Validate(dirPath)
 }

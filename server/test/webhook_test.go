@@ -4,12 +4,11 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/refto/server/test/assert"
-
 	"github.com/refto/server/config"
 	"github.com/refto/server/server/request"
 	githubwebhook "github.com/refto/server/service/github_webhook"
 	. "github.com/refto/server/test/apitest"
+	"github.com/refto/server/test/assert"
 )
 
 func TestWebhookDataPushed(t *testing.T) {
@@ -18,6 +17,34 @@ func TestWebhookDataPushed(t *testing.T) {
 	// this test will succeed anyway
 	// This test might helpful for debug
 	// Skipping until proper way of testing this route will be implemented
+	t.Skip()
+
+	conf := config.Get()
+	req := request.GitHubRepoPushed{
+		Repo: request.GitHubRepoPushedRepo{
+			CloneURL: conf.GitHub.DataRepo,
+		},
+	}
+
+	sig, err := githubwebhook.HashMAC(
+		`{"repository":{"clone_url":"`+conf.GitHub.DataRepo+`"}}`,
+		conf.GitHub.DataPushedHookSecret,
+	)
+	assert.NotError(t, err)
+
+	POST(t, Request{
+		Path:         "hooks/data-pushed",
+		Body:         req,
+		BindResponse: nil,
+		AssertStatus: http.StatusOK,
+		Headers: Headers{
+			"X-GitHub-Event":  "push",
+			"X-Hub-Signature": sig,
+		},
+	})
+}
+
+func TestWebhookPullRequest(t *testing.T) {
 	t.Skip()
 
 	conf := config.Get()

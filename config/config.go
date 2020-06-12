@@ -38,6 +38,14 @@ type Config struct {
 	GitHub struct {
 		DataRepo             string `yaml:"data_repo"`
 		DataPushedHookSecret string `yaml:"data_pushed_hook_secret"`
+
+		// Data Warden is GitHub app that helps with data checks and validation
+		// https://github.com/apps/data-warden
+		DataWarden struct {
+			AppID     int64  `yaml:"app_id"`     // GitHub App ID
+			InstallID int64  `yaml:"install_id"` // Installation ID
+			PEMPath   string `yaml:"pem_path"`   // path to private-key.pem
+		} `yaml:"data_warden"`
 	} `yaml:"github"`
 }
 

@@ -18,6 +18,13 @@ github:
   # This is the same secret you set on GitHub's push hook of the repo above
   data_pushed_hook_secret: SomeSecretToSignHooks
 
+  # Data Warden is a GitHub app that helps with data checks and validation
+  # https://github.com/apps/data-warden
+  data_warden:
+    app_id: 1 # GitHub App ID
+    install_id: 1 # Installation ID
+    pem_path: private-key.pem
+
 dir:
   data: "/projects/refto/data/"
   logs: ""

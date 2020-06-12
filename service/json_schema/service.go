@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/refto/server/config"
 	"github.com/refto/server/service/data"
 	"github.com/xeipuuv/gojsonschema"
 )
@@ -41,21 +40,27 @@ func (e errStack) Error() string {
 }
 
 // Validate validates each YAML doc against JSON schema of it's type
-func Validate() (err error) {
+func Validate(dirPath string) (err error) {
+	_, err = os.Stat(dirPath)
+	if err != nil {
+		err = fmt.Errorf("os.Stat: %s", err.Error())
+		return
+	}
+
 	schemasRepo := schemas{}
 	dataRepo := filesByType{}
 	errs := errStack{}
 
 	// collect schemas along with data (to not walk dirs seconds time)
-	err = filepath.Walk(config.Get().Dir.Data, func(path string, f os.FileInfo, wErr error) (err error) {
+	err = filepath.Walk(dirPath, func(path string, f os.FileInfo, wErr error) (err error) {
 		if wErr != nil {
 			return wErr
 		}
 
 		if data.IsSchemaFile(f.Name()) {
-			err = registerSchema(path, schemasRepo)
+			err = registerSchema(dirPath, path, schemasRepo)
 			if err != nil {
-				errs.Add(err, "register schema: "+relPath(path))
+				errs.Add(err, "register schema: "+relPath(dirPath, path))
 			}
 			return nil
 		}
@@ -67,7 +72,7 @@ func Validate() (err error) {
 
 		jsonBytes, err := data.JSONBytesFromYAMLFile(path)
 		if err != nil {
-			errs.Add(err, relPath(path))
+			errs.Add(err, relPath(dirPath, path))
 			return nil
 		}
 
@@ -95,19 +100,19 @@ func Validate() (err error) {
 		for _, v := range files {
 			schema, ok := schemasRepo[t]
 			if !ok {
-				errs.Add(fmt.Errorf("schema of type '%s' is not exists (source '%s')", t, relPath(v.Path)))
+				errs.Add(fmt.Errorf("schema of type '%s' is not exists (source '%s')", t, relPath(dirPath, v.Path)))
 				break
 			}
 
 			loader := gojsonschema.NewBytesLoader(v.Data)
 			result, err := schema.Schema.Validate(loader)
 			if err != nil {
-				errs.Add(err, "validate "+relPath(v.Path))
+				errs.Add(err, "validate "+relPath(dirPath, v.Path))
 				continue
 			}
 
 			if !result.Valid() {
-				errs.Add(errors.New("validation failed for " + relPath(v.Path)))
+				errs.Add(errors.New("validation failed for " + relPath(dirPath, v.Path)))
 				for _, e := range result.Errors() {
 					errs.Add(errors.New("\t - " + e.String()))
 				}
@@ -124,20 +129,20 @@ func Validate() (err error) {
 
 // registerSchema loads YAML schema from fPath converts it to JSON and adds it to the repo
 // returns error if schema of given type already been registered
-func registerSchema(fPath string, repo schemas) (err error) {
-	t := data.TypeFromSchemaFilename(fPath)
+func registerSchema(dirPath, filePath string, repo schemas) (err error) {
+	t := data.TypeFromSchemaFilename(filePath)
 
 	// check if this schema type already registered
 	existing, ok := repo[t]
 	if ok {
 		err = fmt.Errorf(
 			"schema type '%s' from '%s' already registered in '%s'",
-			t, relPath(fPath), relPath(existing.Path),
+			t, relPath(dirPath, filePath), relPath(dirPath, existing.Path),
 		)
 		return
 	}
 
-	jsonBytes, err := data.JSONBytesFromYAMLFile(fPath)
+	jsonBytes, err := data.JSONBytesFromYAMLFile(filePath)
 	if err != nil {
 		return
 	}
@@ -150,13 +155,13 @@ func registerSchema(fPath string, repo schemas) (err error) {
 	}
 
 	repo[t] = Schema{
-		Path:   fPath,
+		Path:   filePath,
 		Schema: schema,
 	}
 
 	return
 }
 
-func relPath(fPath string) string {
-	return strings.TrimPrefix(fPath, config.Get().Dir.Data)
+func relPath(dirPath, filePath string) string {
+	return strings.TrimPrefix(filePath, dirPath)
 }
