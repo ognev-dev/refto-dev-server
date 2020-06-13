@@ -26,30 +26,47 @@ type File struct {
 type schemas map[data.Type]Schema
 type filesByType map[data.Type][]File
 
-type errStack []string
+type ValidateResult struct {
+	SchemaCount     int
+	DataCount       int
+	DataCountByType map[data.Type]int
+}
 
-func (e *errStack) Add(err error, wrapOpt ...string) {
+type ErrStack []string
+
+func (e *ErrStack) Add(err error, wrapOpt ...string) {
 	if len(wrapOpt) > 0 {
 		err = errors.New(wrapOpt[0] + ": " + err.Error())
 	}
 
 	*e = append(*e, err.Error())
 }
-func (e errStack) Error() string {
+func (e ErrStack) Error() string {
 	return strings.Join(e, "\n")
 }
 
 // Validate validates each YAML doc against JSON schema of it's type
-func Validate(dirPath string) (err error) {
+func Validate(dirPath string) (resp ValidateResult, err error) {
 	_, err = os.Stat(dirPath)
 	if err != nil {
-		err = fmt.Errorf("os.Stat: %s", err.Error())
 		return
+	}
+
+	// add trailing slash, so base name of file will will not have it
+	// when displaying errors and messages
+	if !strings.HasSuffix(dirPath, string(filepath.Separator)) {
+		dirPath += string(filepath.Separator)
+	}
+
+	resp = ValidateResult{
+		SchemaCount:     0,
+		DataCount:       0,
+		DataCountByType: map[data.Type]int{},
 	}
 
 	schemasRepo := schemas{}
 	dataRepo := filesByType{}
-	errs := errStack{}
+	errs := ErrStack{}
 
 	// collect schemas along with data (to not walk dirs seconds time)
 	err = filepath.Walk(dirPath, func(path string, f os.FileInfo, wErr error) (err error) {
@@ -62,6 +79,7 @@ func Validate(dirPath string) (err error) {
 			if err != nil {
 				errs.Add(err, "register schema: "+relPath(dirPath, path))
 			}
+			resp.SchemaCount++
 			return nil
 		}
 
@@ -70,6 +88,7 @@ func Validate(dirPath string) (err error) {
 			return
 		}
 
+		resp.DataCount++
 		jsonBytes, err := data.JSONBytesFromYAMLFile(path)
 		if err != nil {
 			errs.Add(err, relPath(dirPath, path))
@@ -77,6 +96,11 @@ func Validate(dirPath string) (err error) {
 		}
 
 		t := data.TypeFromFilename(path)
+		_, ok := resp.DataCountByType[t]
+		if !ok {
+			resp.DataCountByType[t] = 0
+		}
+		resp.DataCountByType[t]++
 		files, ok := dataRepo[t]
 		if !ok {
 			files = []File{}

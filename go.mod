@@ -6,7 +6,6 @@ require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/bradleyfalzon/ghinstallation v1.1.1
 	github.com/brianvoe/gofakeit v3.18.0+incompatible
-	github.com/davecgh/go-spew v1.1.1
 	github.com/ghodss/yaml v1.0.0
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/static v0.0.0-20191128031702-f81c604d8ac2
@@ -15,7 +14,6 @@ require (
 	github.com/go-git/go-git/v5 v5.0.0
 	github.com/go-pg/migrations/v7 v7.1.10
 	github.com/go-pg/pg/v9 v9.1.6
-	github.com/google/go-github v17.0.0+incompatible // indirect
 	github.com/google/go-github/v32 v32.0.0
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/lib/pq v1.4.0
@@ -23,7 +21,6 @@ require (
 	github.com/stretchr/testify v1.5.1
 	github.com/xeipuuv/gojsonschema v1.2.0
 	golang.org/x/crypto v0.0.0-20200427165652-729f1e841bcc
-	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 )
