@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/ghodss/yaml"
@@ -75,7 +76,7 @@ func TypeFromFilename(fPath string) (t Type) {
 }
 
 func TypeFromSchemaFilename(fPath string) (t Type) {
-	_, fName := path.Split(fPath)
+	_, fName := filepath.Split(fPath)
 	nameParts := strings.Split(fName, ".")
 	if len(nameParts) > 2 {
 		t = Type(nameParts[0])

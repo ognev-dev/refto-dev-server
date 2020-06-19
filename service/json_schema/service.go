@@ -78,6 +78,7 @@ func Validate(dirPath string) (resp ValidateResult, err error) {
 			err = registerSchema(dirPath, path, schemasRepo)
 			if err != nil {
 				errs.Add(err, "register schema: "+relPath(dirPath, path))
+				return nil
 			}
 			resp.SchemaCount++
 			return nil
