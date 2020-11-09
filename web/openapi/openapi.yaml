@@ -1,0 +1,169 @@
+openapi: "3.0.0"
+info:
+  version: "1"
+  title: refto.dev API
+  description: Thanks to OpenAPI
+#  termsOfService: http://swagger.io/terms/
+#  contact:
+#    name: Swagger API Team
+#    email: apiteam@swagger.io
+#    url: http://swagger.io
+#  license:
+#    name: Apache 2.0
+#    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  # %SERVER_URL% is placeholder that will be replaced by server with actual URL
+  # this way openapi's server URL will match the server that it is served by
+  - url: "%SERVER_URL%"
+paths:
+  /entities/:
+    get:
+      tags:
+        - Entities
+      summary: Get list of entities
+      operationId: getEntities
+      parameters:
+        - name: page
+          in: query
+          description: Page number in pagination
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Entries limit per page
+          required: false
+          schema:
+            type: integer
+        - name: topics
+          in: query
+          description: Filter by topics
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: addr
+          in: query
+          description: Filter by ref. address (Get entities that match by substring in `home_addr` property)
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: Filter by name (Get entities that match by substring in `title` property)
+          required: false
+          schema:
+            type: string
+        - name: query
+          in: query
+          description: Search (Get entities that match by substring in their data)
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Get entities response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  definitions:
+                    description: List of definitions
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Entity'
+                  entities:
+                    description: List of entities
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Entity'
+                  entities_count:
+                    description: Count of entities that match current filter/search criteria (Or all, if no criteria given)
+                    type: integer
+                  topics:
+                    description: List of topics aggregated from entities that match filter/search criteria. Topics from filter request is excluded from this list.
+                    type: string
+  /topics/:
+    get:
+      tags:
+        - Topics
+      summary: Get list of topics
+      operationId: getTopics
+      parameters:
+        - name: name
+          in: query
+          description: Filter by name (Get topics that match by substring in `name` property)
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of topics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    description: List of topics
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Topic'
+                  count:
+                    description: Count of topics
+                    type: integer
+
+components:
+  schemas:
+    Entity:
+      type: object
+      properties:
+        id:
+          type: integer
+        token:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+          enum:
+            - definition
+            - book
+            - conference
+            - generic
+            - person
+            - software
+        data:
+          description: |
+            Data is an object that contains data of entity type. Each type has it own data structure, see `https://github.com/refto/data/{type}.sample.yaml` to understand data structure of specific type. (TODO: describe structure of each type here? (anyOf directive might help))
+          type: object
+          properties:
+            title:
+              type: string
+            description:
+              type: string
+            home_addr:
+              type: string
+            topics:
+              type: array
+              items:
+                type: string
+        created_at:
+          type: string
+          format: 'date-time'
+        updated_at:
+          type: string
+          format: 'date-time'
+        deleted_at:
+          type: string
+          format: 'date-time'
+
+    Topic:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string

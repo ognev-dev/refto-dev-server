@@ -28,6 +28,15 @@ type Config struct {
 		Port        string
 		Host        string
 		ApiBasePath string `yaml:"api_base_path"`
+
+		// Static directive defines local and web paths.
+		// Anything that is requested from "WebPath" will served from "LocalPath" as-is
+		// For example if local path is set to "./web" and web path is set to "/static/"
+		// requesting "/static/something.html" will serve "./web/something.html" if exists
+		Static struct {
+			LocalPath string `yaml:"local_path"`
+			WebPath   string `yaml:"web_path"`
+		}
 	}
 
 	Dir struct {

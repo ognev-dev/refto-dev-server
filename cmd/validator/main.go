@@ -27,7 +27,7 @@ func main() {
 
 	startAt := time.Now()
 	defer func() {
-		fmt.Println("Done in", time.Now().Sub(startAt))
+		fmt.Println("Done in", time.Since(startAt))
 	}()
 	fmt.Println("Checking data at " + dataPath)
 	resp, err := jsonschema.Validate(dataPath)

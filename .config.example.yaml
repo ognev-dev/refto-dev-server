@@ -12,6 +12,14 @@ server:
   port: 8080
   api_base_path: api
 
+  # Static directive defines local and web paths.
+  # Anything that is requested from "WebPath" will served from "LocalPath" as-is
+  # For example if local path is set to "./web" and web path is set to "/static/"
+  # requesting "/static/something.html" will serve "./web/something.html" if exists
+  static:
+    local_path: "./web"
+    web_path: "/~/"
+
 github:
   data_repo: https://github.com/refto/data.git
 

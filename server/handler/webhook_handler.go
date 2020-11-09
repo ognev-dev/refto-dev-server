@@ -84,7 +84,7 @@ func ImportDataFromRepoByGitHubWebHook(c *gin.Context) {
 			return
 		}
 
-		err = jsonschema.Validate(conf.Dir.Data)
+		_, err = jsonschema.Validate(conf.Dir.Data)
 		if err != nil {
 			log.Error("[ERROR] data validate: " + err.Error())
 			return
@@ -222,7 +222,7 @@ func ProcessPullRequestActions(c *gin.Context) {
 		// TODO validate not only json schema but everything that should be validated
 		// like URLs must be valid URL, dates must be valid dates
 		// and so on (probably can be done with json schema custom validators)
-		err = jsonschema.Validate(cloneDir)
+		_, err = jsonschema.Validate(cloneDir)
 		if err != nil {
 			err = fmt.Errorf("[ERROR] data validate: %s", err.Error())
 			log.Error("[ERROR] data validate: " + err.Error())
