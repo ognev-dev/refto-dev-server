@@ -88,13 +88,20 @@ go build -ldflags "-s -w" -o ./bin/refto-server cmd/server/main.go || exit
 echo "Compiling CLI..."
 go build -ldflags "-s -w" -o ./bin/refto-cli cmd/cli/main.go || exit
 
-echo "Copying binaries to remote (${remoteUser}@${remoreAddr})..."
-scp ./bin/refto-server ./bin/refto-cli ${remoteUser}@${remoreAddr}:~/ || exit
+echo "Making archive of static data..."
+tar -czf refto-static.tar.gz ./web
+
+echo "Copying files to remote (${remoteUser}@${remoreAddr})..."
+scp ./bin/refto-server ./bin/refto-cli refto-static.tar.gz ${remoteUser}@${remoreAddr}:~/ || exit
 
 echo "Setting up server on remote..."
 ssh -T ${remoteUser}@${remoreAddr} << EOF
 echo "Stopping supervisor..."
 sudo service supervisor stop || exit
+
+echo "Extracting static data..."
+tar -xzf ~/refto-static.tar.gz -C $remoteProjectDir || exit
+rm -f ~/refto-static.tar.gz || exit
 
 echo "Moving binaries..."
 mv ~/refto-server $remoteProjectDir/server || exit
@@ -115,6 +122,9 @@ server:
   host: $serverHost
   port: $serverPort
   api_base_path: api
+  static:
+    local_path: "./web"
+    web_path: "/~/"
 
 github:
   data_repo: $dataRepo
@@ -136,5 +146,9 @@ cd $remoteProjectDir || exit
 echo "Starting supervisor..."
 sudo service supervisor start || exit
 EOF
+
+# cleanup
+rm -f refto-static.tar.gz || exit
+# not removing binaries they might be useful for local use
 
 echo "Server deployed!"

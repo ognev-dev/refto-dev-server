@@ -27,14 +27,14 @@ func Search(req request.SearchTopic) (data []model.Topic, count int, err error) 
 // For given topic B, should return A, C
 // For given topics A,B, should return C
 // For given topics A,E, should return D
-func Common(in []string) (data []string, err error) {
+func Common(in []string) (out []string, err error) {
 	// return all topics
 	if len(in) == 0 {
 		err = database.ORM().
 			Model(&[]model.Topic{}).
 			Column("name").
 			Order("name").
-			Select(&data)
+			Select(&out)
 		return
 	}
 
@@ -59,7 +59,7 @@ func Common(in []string) (data []string, err error) {
 		WhereIn("t.name NOT IN (?)", in).
 		Order("name").
 		Group("t.id").
-		Select(&data)
+		Select(&out)
 
 	return
 }

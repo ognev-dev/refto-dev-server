@@ -26,6 +26,8 @@ func main() {
 	r := gin.Default()
 	route.Register(r)
 
+	// for dev env run normal server
+	// for prod run autotls
 	if !config.IsReleaseEnv() {
 		server := &http.Server{
 			Addr:    conf.Server.Host + ":" + conf.Server.Port,
@@ -47,8 +49,8 @@ func main() {
 			log.Fatal(err.Error())
 		}
 	} else {
-		//On Linux, you can use setcap to grant your binary the permission to bind low ports:
-		//$ sudo setcap cap_net_bind_service=+ep /path/to/your/binary
+		// On Linux, you can use setcap to grant your binary the permission to bind low ports:
+		// $ sudo setcap cap_net_bind_service=+ep /path/to/your/binary
 		err := autotls.Run(r, conf.Server.Host)
 		if err != nil && err != http.ErrServerClosed {
 			log.Fatal(err.Error())
