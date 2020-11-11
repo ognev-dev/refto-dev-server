@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -55,7 +56,14 @@ type Config struct {
 			InstallID int64  `yaml:"install_id"` // Installation ID
 			PEMPath   string `yaml:"pem_path"`   // path to private-key.pem
 		} `yaml:"data_warden"`
+
+		// https://github.com/settings/applications/new
+		// https://docs.github.com/en/free-pro-team@latest/developers/apps/authorizing-oauth-apps
+		ClientID     string `yaml:"client_id"`
+		ClientSecret string `yaml:"client_secret"`
 	} `yaml:"github"`
+
+	AuthTokenLifetime time.Duration `yaml:"auth_token_life_time"`
 }
 
 var conf *Config

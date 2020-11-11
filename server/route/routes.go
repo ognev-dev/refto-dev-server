@@ -31,6 +31,7 @@ func Register(r *gin.Engine) {
 		entityRoutes,
 		topicRoutes,
 		webHookRoutes,
+		userRoutes,
 	)
 
 	r.NoRoute(func(c *gin.Context) {
