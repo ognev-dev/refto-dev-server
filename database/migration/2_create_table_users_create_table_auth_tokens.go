@@ -4,12 +4,6 @@ import (
 	"github.com/go-pg/migrations/v7"
 )
 
-//{
-//"access_token": "a15d631eb2e048d2935bc4d6bf2226d6307f3d3a",
-//"token_type": "bearer",
-//"scope": ""
-//}
-
 func init() {
 	mg := `
 CREATE TABLE users
