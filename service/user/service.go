@@ -21,13 +21,13 @@ func ResolveFromGithubUser(gu *github.User, token string) (u model.User, err err
 		return
 	}
 
-	cur, err := FindByGithubID(gu.GetID())
-	if err != nil {
+	u, err = FindByGithubID(gu.GetID())
+	if err != nil && err != pg.ErrNoRows {
 		return
 	}
 
 	// create new
-	if cur == nil {
+	if err == pg.ErrNoRows {
 		u = model.User{
 			Name:        gu.GetName(),
 			AvatarURL:   gu.GetAvatarURL(),
@@ -41,26 +41,21 @@ func ResolveFromGithubUser(gu *github.User, token string) (u model.User, err err
 	}
 
 	// update existing
-	cur.Name = gu.GetName()
-	cur.AvatarURL = gu.GetAvatarURL()
-	cur.GithubToken = token
-	cur.Email = gu.GetEmail()
-	cur.ActiveAt = time.Now()
-	err = Update(cur)
+	u.Name = gu.GetName()
+	u.AvatarURL = gu.GetAvatarURL()
+	u.GithubToken = token
+	u.Email = gu.GetEmail()
+	u.ActiveAt = time.Now()
+	err = Update(&u)
+
 	return
 }
 
-func FindByGithubID(id int64) (m *model.User, err error) {
-	m = &model.User{}
+func FindByGithubID(id int64) (m model.User, err error) {
 	err = database.ORM().
-		Model(m).
+		Model(&m).
 		Where("github_id = ?", id).
 		First()
-
-	if err == pg.ErrNoRows {
-		m = nil
-		err = nil
-	}
 
 	return
 }

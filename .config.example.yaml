@@ -21,6 +21,9 @@ server:
     web_path: "/~/"
 
 github:
+  client_id:
+  client_secret:
+
   data_repo: https://github.com/refto/data.git
 
   # This is the same secret you set on GitHub's push hook of the repo above
@@ -36,3 +39,5 @@ github:
 dir:
   data: "/projects/refto/data/"
   logs: ""
+
+auth_token_life_time: 120h

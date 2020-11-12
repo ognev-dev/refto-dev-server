@@ -1,28 +1,28 @@
 package github
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/http"
-	"net/url"
+	"time"
+
+	"github.com/refto/server/config"
 
 	"github.com/google/go-github/v32/github"
-	"github.com/refto/server/config"
 	"golang.org/x/oauth2"
 )
 
 func GetAccessToken(code string) (token string, err error) {
-	hc := http.Client{Timeout: 30}
-	uv := url.Values{}
-	uv.Set("client_id", config.Get().GitHub.ClientID)
-	uv.Set("client_secret", config.Get().GitHub.ClientSecret)
-	uv.Set("code", code)
-	req, err := http.NewRequest(http.MethodPost, "https://github.com/login/oauth/access_token/?"+uv.Encode(), nil)
+	hc := http.Client{Timeout: 30 * time.Second}
+	reqData := []byte(`{"client_id":"` + config.Get().GitHub.ClientID + `", "client_secret":"` + config.Get().GitHub.ClientSecret + `", "code":"` + code + `"}`)
+	req, err := http.NewRequest(http.MethodPost, "https://github.com/login/oauth/access_token/", bytes.NewBuffer(reqData))
 	if err != nil {
 		return
 	}
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 
 	resp, err := hc.Do(req)

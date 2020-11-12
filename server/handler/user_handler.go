@@ -14,7 +14,7 @@ import (
 
 func LoginWithGithub(c *gin.Context) {
 	var req request.LoginWithGithub
-	if !bindQuery(c, &req) {
+	if !bindJSON(c, &req) {
 		return
 	}
 
