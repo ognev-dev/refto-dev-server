@@ -8,11 +8,12 @@ import (
 type User struct {
 	ID          int64      `json:"id"`
 	Name        string     `json:"name"`
+	Login       string     `json:"login"`
 	AvatarURL   string     `json:"avatar_url"`
 	TelegramID  int64      `json:"-"`
 	GithubID    int64      `json:"-"`
 	GithubToken string     `json:"-"`
-	Email       string     `json:"email"`
+	Email       string     `json:"-"`
 	CreatedAt   time.Time  `json:"created_at"`
 	ActiveAt    time.Time  `json:"active_at"`
 	UpdatedAt   *time.Time `json:"updated_at"`

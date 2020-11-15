@@ -12,6 +12,7 @@ import (
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/refto/server/config"
+	"github.com/refto/server/server/middleware"
 	"github.com/sirupsen/logrus"
 )
 
@@ -25,14 +26,28 @@ func Register(r *gin.Engine) {
 	r.Use(static.Serve(conf.Server.Static.WebPath, static.LocalFile(conf.Server.Static.LocalPath, false)))
 
 	api := r.Group(conf.Server.ApiBasePath)
-	api.Use()
+	api.Use(
+		middleware.RequestClient,
+		middleware.RequestUser,
+	)
 
-	apply(api,
+	// public routes
+	addRoutes(api,
 		entityRoutes,
 		topicRoutes,
 		webHookRoutes,
 		userRoutes,
 	)
+
+	// auth routes
+	authApi := api.Group("/")
+	authApi.Use(
+		middleware.RequestAuth,
+	)
+	//addRoutes(authApi,
+	//	entityRoutes,
+	//	topicRoutes,
+	//)
 
 	r.NoRoute(func(c *gin.Context) {
 		data, err := ioutil.ReadFile(filepath.Join(conf.Server.Static.LocalPath, static.INDEX))
@@ -46,7 +61,7 @@ func Register(r *gin.Engine) {
 	})
 }
 
-func apply(rg *gin.RouterGroup, routeFn ...func(*gin.RouterGroup)) {
+func addRoutes(rg *gin.RouterGroup, routeFn ...func(*gin.RouterGroup)) {
 	for _, fn := range routeFn {
 		fn(rg)
 	}
@@ -54,9 +69,15 @@ func apply(rg *gin.RouterGroup, routeFn ...func(*gin.RouterGroup)) {
 
 func corsConfig() gin.HandlerFunc {
 	conf := cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
-		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders: []string{
+			"Origin",
+			"Content-Length",
+			"Content-Type",
+			"Authorization",
+			"X-Client",
+		},
 		AllowCredentials: false,
 		MaxAge:           24 * time.Hour,
 	}

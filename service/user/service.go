@@ -30,6 +30,7 @@ func ResolveFromGithubUser(gu *github.User, token string) (u model.User, err err
 	if err == pg.ErrNoRows {
 		u = model.User{
 			Name:        gu.GetName(),
+			Login:       gu.GetLogin(),
 			AvatarURL:   gu.GetAvatarURL(),
 			GithubID:    gu.GetID(),
 			GithubToken: token,
@@ -42,6 +43,7 @@ func ResolveFromGithubUser(gu *github.User, token string) (u model.User, err err
 
 	// update existing
 	u.Name = gu.GetName()
+	u.Login = gu.GetLogin()
 	u.AvatarURL = gu.GetAvatarURL()
 	u.GithubToken = token
 	u.Email = gu.GetEmail()
@@ -67,5 +69,15 @@ func Create(u *model.User) (err error) {
 
 func Update(u *model.User) (err error) {
 	err = database.ORM().Update(u)
+	return
+}
+
+func SetActiveAt(userID int64) (err error) {
+	_, err = database.ORM().
+		Model(&model.User{}).
+		Where("id = ?", userID).
+		Set("active_at = ?", time.Now()).
+		Update()
+
 	return
 }

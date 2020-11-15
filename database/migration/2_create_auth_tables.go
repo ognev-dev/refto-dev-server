@@ -12,6 +12,7 @@ CREATE TABLE users
     telegram_id  INT,
     github_id    BIGINT UNIQUE NOT NULL,
     github_token TEXT,
+	login 		 TEXT NOT NULL,
     avatar_url   TEXT,
     name         TEXT,
     email        TEXT,

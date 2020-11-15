@@ -9,9 +9,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/refto/server/config"
-
 	"github.com/google/go-github/v32/github"
+	"github.com/refto/server/config"
 	"golang.org/x/oauth2"
 )
 

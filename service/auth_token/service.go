@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-pg/pg/v9"
+	"github.com/refto/server/config"
 	"github.com/refto/server/database"
 	"github.com/refto/server/database/model"
 	"github.com/refto/server/util"
@@ -44,7 +45,6 @@ func Sign(m *model.AuthToken) string {
 		m.UserAgent,
 		m.Token,
 		m.CreatedAt.UTC().Format(time.RFC3339),
-		m.ExpiresAt.UTC().Format(time.RFC3339),
 	}
 
 	sig := fmt.Sprintf("%x", sha256.Sum256([]byte(strings.Join(sigData, "+"))))
@@ -56,6 +56,16 @@ func DeleteByUser(id string) (err error) {
 		Model(&model.AuthToken{}).
 		Where("user_id = ?", id).
 		Delete()
+
+	return
+}
+
+func Prolong(id int64) (err error) {
+	_, err = database.ORM().
+		Model(&model.AuthToken{}).
+		Where("id = ?", id).
+		Set("expires_at = ?", time.Now().Add(config.Get().AuthTokenLifetime)).
+		Update()
 
 	return
 }

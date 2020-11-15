@@ -24,7 +24,7 @@ func (m *AuthToken) BeforeInsert(ctx context.Context) (context.Context, error) {
 		m.CreatedAt = time.Now()
 	}
 	if m.ExpiresAt.IsZero() {
-		m.ExpiresAt = m.CreatedAt.Add(config.Get().AuthTokenLifetime)
+		m.ExpiresAt = time.Now().Add(config.Get().AuthTokenLifetime)
 	}
 	return ctx, nil
 }
