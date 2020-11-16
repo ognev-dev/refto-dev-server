@@ -54,8 +54,6 @@ func Abort(c *gin.Context, err error) {
 	c.AbortWithStatusJSON(code, resp)
 }
 
-// TODO this func will be needed later for json binding on post/put request
-// nolint
 func bindJSON(c *gin.Context, req Validatable) (ok bool) {
 	err := c.ShouldBindJSON(req)
 	if err != nil {

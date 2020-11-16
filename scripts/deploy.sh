@@ -35,6 +35,11 @@ dataRepo=https://github.com/refto/data.git
 # This is the same secret you set on GitHub's push hook of the repo above
 dataPushedHookSecret=SomeSecretToSignHooks
 
+# Github's app to connect users with
+# https://github.com/settings/applications/new
+githubClientID=github-client-id-to-auth-with
+githubClientSecret=github-client-secret-to-auth-with
+
 # necessary checks
 if [ -z "$remoreAddr"  ]
 then
@@ -57,6 +62,8 @@ then
   exit
 fi
 if [ -z "$dbUser"  ]
+
+
 then
   echo "Unable to deploy: Database user is not set"
   exit
@@ -71,10 +78,35 @@ then
   echo "Unable to deploy: Server's host is not set"
   exit
 fi
+if [ -z "$githubClientID"  ]
+then
+  echo "Github client ID is not set!"
+  exit
+fi
+if [ -z "$githubClientSecret"  ]
+then
+  echo "Github client secret is not set!"
+  exit
+fi
 cd $projectDir || exit
 
 # lint
-/home/vo/go/bin/golangci-lint run || { echo "Fix above errors, young apprentice"; exit; }
+if ! command -v /home/vo/go/bin/golangci-lint &> /dev/null
+then
+    echo "'golangci-lint' could not be found"
+    exit
+fi
+
+# a bit of randomness just for fun
+# not sure if messages is appropriate or correct, please fix it by yourself if offended
+errText[0]="Fix above errors, young apprentice"
+errText[1]="Whoops, something went wrong"
+errText[2]="Whoops, you are welcomed by company of noobs"
+errText[3]="Whoops, get out from error loops!"
+errText[4]="Whoops, your code poops"
+errText[5]="Whoops, you'd better not be distracted by boobs"
+errText[6]="Unable to deploy: Please fix above error(s)"
+/home/vo/go/bin/golangci-lint run || { echo ${errText[$(($RANDOM % ${#errText[@]}))]}; exit; }
 
 # test api
 cd ./server/test || exit
@@ -127,6 +159,8 @@ server:
     web_path: "/~/"
 
 github:
+  client_id: $githubClientID
+  client_secret: $githubClientSecret
   data_repo: $dataRepo
   data_pushed_hook_secret: $dataPushedHookSecret
   data_warden:

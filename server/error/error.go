@@ -14,6 +14,7 @@ func New400(message string) error {
 		Message: message,
 	}
 }
+
 func New401(message string) error {
 	return Error{
 		Code:    http.StatusUnauthorized,
