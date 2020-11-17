@@ -56,6 +56,11 @@ func Filter(req request.FilterEntities) (data []model.Entity, count int, err err
 		q.Where("type != ?", DefinitionType)
 	}
 
+	if req.Collection != 0 {
+		q.Join("JOIN collection_entities ce ON ce.entity_id=entity.id").
+			Where("ce.collection_id = ?", req.Collection)
+	}
+
 	q.OrderExpr("updated_at DESC, created_at DESC")
 	count, err = q.SelectAndCount()
 

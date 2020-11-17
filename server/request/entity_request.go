@@ -19,8 +19,9 @@ func SetEntity(c *gin.Context, m model.Entity) {
 type FilterEntities struct {
 	NoValidation
 	Pagination
-	Topics []string `json:"topics,omitempty" form:"topics"`
-	Addr   string   `json:"addr" form:"addr"`
-	Name   string   `json:"name" form:"name"`
-	Query  string   `json:"query" form:"query"`
+	Topics     []string `json:"topics,omitempty" form:"topics"`
+	Addr       string   `json:"addr" form:"addr"`
+	Name       string   `json:"name" form:"name"`
+	Query      string   `json:"query" form:"query"`
+	Collection int64    `json:"col" form:"col"`
 }

@@ -1,6 +1,7 @@
 package collection
 
 import (
+	"errors"
 	"math/rand"
 
 	"github.com/go-pg/pg/v9"
@@ -50,6 +51,10 @@ func FindByID(id int64) (m model.Collection, err error) {
 		Model(&m).
 		Where("id = ?", id).
 		First()
+
+	if err == pg.ErrNoRows {
+		err = errors.New("collection not found")
+	}
 
 	return
 }

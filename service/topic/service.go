@@ -27,13 +27,26 @@ func Filter(req request.FilterTopics) (data []model.Topic, count int, err error)
 // For given topic B, should return A, C
 // For given topics A,B, should return C
 // For given topics A,E, should return D
-func Common(in []string) (out []string, err error) {
+func Common(in []string, collectionID int64) (out []string, err error) {
 	// return all topics
-	if len(in) == 0 {
+	if len(in) == 0 && collectionID == 0 {
 		err = database.ORM().
 			Model(&[]model.Topic{}).
 			Column("name").
 			Order("name").
+			Select(&out)
+		return
+	}
+	// return all topics of collection
+	if len(in) == 0 && collectionID != 0 {
+		err = database.ORM().
+			Model(&[]model.Topic{}).
+			Column("name").
+			Join("JOIN entity_topics et ON et.topic_id=topic.id").
+			Join("JOIN collection_entities ce ON ce.entity_id=et.entity_id").
+			Where("ce.collection_id = ?", collectionID).
+			Order("name").
+			Group("topic.id").
 			Select(&out)
 		return
 	}
@@ -47,6 +60,12 @@ func Common(in []string) (out []string, err error) {
 		WhereIn("topic.name IN (?)", in).
 		Having("COUNT(topic.id) = ?", len(in)).
 		Group("e.id")
+
+	if collectionID != 0 {
+		entities = entities.
+			Join("JOIN collection_entities ce ON ce.entity_id=e.id").
+			Where("ce.collection_id = ?", collectionID)
+	}
 
 	// select topics (of selected entities) that not a given topics
 	err = database.ORM().

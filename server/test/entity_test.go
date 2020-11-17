@@ -11,7 +11,7 @@ import (
 	"github.com/refto/server/test/assert"
 )
 
-func TestSearchEntity(t *testing.T) {
+func TestFilterEntities(t *testing.T) {
 	// Create test data
 	topic1, err := factory.CreateTopic(model.Topic{Name: "topic1"})
 	assert.NotError(t, err)
@@ -92,4 +92,36 @@ func TestSearchEntity(t *testing.T) {
 	assert.Equals(t, ent3.ID, resp.Entities[0].ID)
 	// should not get common topics
 	assert.Equals(t, 0, len(resp.Topics))
+}
+
+func TestFilterEntitiesByCollection(t *testing.T) {
+	Authorise(t)
+	// Create test data
+	col, err := factory.CreateCollection(model.Collection{User: AuthUser})
+	assert.NotError(t, err)
+	ce1, err := factory.CreateCollectionEntity(model.CollectionEntity{CollectionID: col.ID})
+	assert.NotError(t, err)
+	ce2, err := factory.CreateCollectionEntity(model.CollectionEntity{CollectionID: col.ID})
+	assert.NotError(t, err)
+	ce3, err := factory.CreateCollectionEntity(model.CollectionEntity{CollectionID: col.ID})
+	assert.NotError(t, err)
+	_, err = factory.CreateCollectionEntity()
+	assert.NotError(t, err)
+
+	req := request.FilterEntities{
+		Collection: col.ID,
+	}
+	var resp response.FilterEntities
+
+	TestFilter(t, "entities", req, &resp)
+	assert.True(t, 3 == resp.EntitiesCount)
+	assert.True(t, 3 == len(resp.Entities))
+	for _, v := range resp.Entities {
+		if v.ID == ce1.EntityID || v.ID == ce2.EntityID || v.ID == ce3.EntityID {
+			continue
+		}
+
+		t.Errorf("unexpected entity in response (%+v)", v)
+		break
+	}
 }

@@ -13,7 +13,7 @@ import (
 	"github.com/refto/server/test/assert"
 )
 
-func TestSearchTopic(t *testing.T) {
+func TestFilterTopic(t *testing.T) {
 	// Create test data
 	topics := []string{"test_this", "test_that", "test_else"}
 	for _, name := range topics {

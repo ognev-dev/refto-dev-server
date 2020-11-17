@@ -1,12 +1,14 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/refto/server/database/model"
 	"github.com/refto/server/server/request"
 	"github.com/refto/server/server/response"
+	"github.com/refto/server/service/collection"
 	"github.com/refto/server/service/entity"
 	"github.com/refto/server/service/topic"
 )
@@ -21,9 +23,24 @@ func GetEntities(c *gin.Context) {
 		definition *model.Entity
 		err        error
 	)
+
 	if len(req.Topics) == 1 && req.Page < 2 {
 		definition, err = entity.Definition(req.Topics[0])
 		if err != nil {
+			Abort(c, err)
+			return
+		}
+	}
+
+	if req.Collection != 0 {
+		col, err := collection.FindByID(req.Collection)
+		if err != nil {
+			Abort(c, err)
+			return
+		}
+
+		if col.Private && col.UserID != request.User(c).ID {
+			err = errors.New("unable to display entities from private collection")
 			Abort(c, err)
 			return
 		}
@@ -35,7 +52,7 @@ func GetEntities(c *gin.Context) {
 		return
 	}
 
-	topics, err := topic.Common(req.Topics)
+	topics, err := topic.Common(req.Topics, req.Collection)
 	if err != nil {
 		Abort(c, err)
 		return
