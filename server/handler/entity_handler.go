@@ -11,8 +11,8 @@ import (
 	"github.com/refto/server/service/topic"
 )
 
-func SearchEntities(c *gin.Context) {
-	var req request.SearchEntity
+func GetEntities(c *gin.Context) {
+	var req request.FilterEntities
 	if !bindQuery(c, &req) {
 		return
 	}
@@ -29,7 +29,7 @@ func SearchEntities(c *gin.Context) {
 		}
 	}
 
-	data, count, err := entity.Search(req)
+	data, count, err := entity.Filter(req)
 	if err != nil {
 		Abort(c, err)
 		return
@@ -41,7 +41,7 @@ func SearchEntities(c *gin.Context) {
 		return
 	}
 
-	resp := response.SearchEntity{
+	resp := response.FilterEntities{
 		Definition:    definition,
 		Entities:      data,
 		EntitiesCount: count,

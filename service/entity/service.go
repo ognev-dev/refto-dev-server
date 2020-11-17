@@ -18,7 +18,7 @@ const DefinitionType = "definition"
 // and it must be persistent
 const DefinitionTokenPrefix = "definitions/"
 
-func Search(req request.SearchEntity) (data []model.Entity, count int, err error) {
+func Filter(req request.FilterEntities) (data []model.Entity, count int, err error) {
 	q := database.ORM().
 		Model(&data).
 		Apply(filter.PageFilter(req.Page, req.Limit))
@@ -116,4 +116,13 @@ func CreateOrUpdate(elem *model.Entity) (err error) {
 	}
 
 	return nil
+}
+
+func FindByID(id int64) (m model.Entity, err error) {
+	err = database.ORM().
+		Model(&m).
+		Where("id = ?", id).
+		First()
+
+	return
 }

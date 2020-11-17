@@ -44,10 +44,9 @@ func Register(r *gin.Engine) {
 	authApi.Use(
 		middleware.RequestAuth,
 	)
-	//addRoutes(authApi,
-	//	entityRoutes,
-	//	topicRoutes,
-	//)
+	addRoutes(authApi,
+		collectionRoutes,
+	)
 
 	r.NoRoute(func(c *gin.Context) {
 		data, err := ioutil.ReadFile(filepath.Join(conf.Server.Static.LocalPath, static.INDEX))

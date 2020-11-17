@@ -16,11 +16,9 @@ var src = rand.NewSource(time.Now().UnixNano())
 // RandomString generates a random string
 // https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-golang
 func RandomString(n ...int) string {
-	var length int
+	length := 16
 	if len(n) == 1 {
 		length = n[0]
-	} else {
-		length = 16
 	}
 
 	b := make([]byte, length)

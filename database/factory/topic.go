@@ -6,9 +6,9 @@ import (
 	"github.com/refto/server/database/model"
 )
 
-func MakeTopic(mOpt ...model.Topic) (m model.Topic, err error) {
-	if len(mOpt) == 1 {
-		m = mOpt[0]
+func MakeTopic(opt ...model.Topic) (m model.Topic, err error) {
+	if len(opt) == 1 {
+		m = opt[0]
 	}
 
 	if m.Name == "" {
@@ -18,8 +18,8 @@ func MakeTopic(mOpt ...model.Topic) (m model.Topic, err error) {
 	return
 }
 
-func CreateTopic(mOpt ...model.Topic) (m model.Topic, err error) {
-	m, err = MakeTopic(mOpt...)
+func CreateTopic(opt ...model.Topic) (m model.Topic, err error) {
+	m, err = MakeTopic(opt...)
 	if err != nil {
 		return
 	}

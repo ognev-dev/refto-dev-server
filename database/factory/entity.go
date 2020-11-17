@@ -8,9 +8,9 @@ import (
 	entitytopic "github.com/refto/server/service/entity_topic"
 )
 
-func MakeEntity(mOpt ...model.Entity) (m model.Entity, err error) {
-	if len(mOpt) == 1 {
-		m = mOpt[0]
+func MakeEntity(opt ...model.Entity) (m model.Entity, err error) {
+	if len(opt) == 1 {
+		m = opt[0]
 	}
 
 	if m.Token == "" {
@@ -38,8 +38,8 @@ func MakeEntity(mOpt ...model.Entity) (m model.Entity, err error) {
 	return
 }
 
-func CreateEntity(mOpt ...model.Entity) (m model.Entity, err error) {
-	m, err = MakeEntity(mOpt...)
+func CreateEntity(opt ...model.Entity) (m model.Entity, err error) {
+	m, err = MakeEntity(opt...)
 	if err != nil {
 		return
 	}

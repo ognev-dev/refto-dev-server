@@ -7,7 +7,7 @@ import (
 	"github.com/refto/server/server/request"
 )
 
-func Search(req request.SearchTopic) (data []model.Topic, count int, err error) {
+func Filter(req request.FilterTopics) (data []model.Topic, count int, err error) {
 	q := database.ORM().
 		Model(&data)
 

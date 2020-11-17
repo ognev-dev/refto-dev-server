@@ -6,11 +6,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/refto/server/server/handler"
+	"github.com/refto/server/server/request"
 	authtoken "github.com/refto/server/service/auth_token"
 	"github.com/refto/server/service/user"
 )
 
-const userKey = "user"
 const authSuccessKey = "auth_success"
 const authErrorKey = "auth_error"
 
@@ -41,7 +41,7 @@ func RequestUser(c *gin.Context) {
 		return
 	}
 
-	tokenEl.ClientName = c.GetString("ClientName")
+	tokenEl.ClientName = request.Client(c)
 	tokenEl.ClientIP = c.Request.RemoteAddr
 	tokenEl.UserAgent = c.Request.UserAgent()
 
@@ -71,6 +71,6 @@ func RequestUser(c *gin.Context) {
 	}
 
 	c.Set(authSuccessKey, true)
-	c.Set(userKey, *userEl)
+	request.SetUser(c, *userEl)
 	c.Next()
 }

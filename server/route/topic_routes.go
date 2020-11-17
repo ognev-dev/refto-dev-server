@@ -6,5 +6,5 @@ import (
 )
 
 func topicRoutes(r *gin.RouterGroup) {
-	r.GET("topics/", handler.SearchTopics)
+	r.GET("topics/", handler.GetTopics)
 }

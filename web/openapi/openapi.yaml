@@ -2,7 +2,7 @@ openapi: "3.0.0"
 info:
   version: "1"
   title: refto.dev API
-  description: Thanks to OpenAPI
+  description: Thanks to <a href="https://swagger.io/docs/specification/about/" target="_blank">OpenAPI</a>
 #  termsOfService: http://swagger.io/terms/
 #  contact:
 #    name: Swagger API Team
@@ -23,18 +23,8 @@ paths:
       summary: Get list of entities
       operationId: getEntities
       parameters:
-        - name: page
-          in: query
-          description: Page number in pagination
-          required: false
-          schema:
-            type: integer
-        - name: limit
-          in: query
-          description: Entries limit per page
-          required: false
-          schema:
-            type: integer
+        - $ref: './query-params.yaml#Page'
+        - $ref: './query-params.yaml#Limit'
         - name: topics
           in: query
           description: Filter by topics
@@ -73,12 +63,12 @@ paths:
                     description: List of definitions
                     type: array
                     items:
-                      $ref: '#/components/schemas/Entity'
+                      $ref: './entities.yaml#Entity'
                   entities:
                     description: List of entities
                     type: array
                     items:
-                      $ref: '#/components/schemas/Entity'
+                      $ref: './entities.yaml#Entity'
                   entities_count:
                     description: Count of entities that match current filter/search criteria (Or all, if no criteria given)
                     type: integer
@@ -110,60 +100,114 @@ paths:
                     description: List of topics
                     type: array
                     items:
-                      $ref: '#/components/schemas/Topic'
+                      $ref: './topics.yaml#Topic'
                   count:
                     description: Count of topics
                     type: integer
 
-components:
-  schemas:
-    Entity:
-      type: object
-      properties:
-        id:
-          type: integer
-        token:
-          type: string
-        title:
-          type: string
-        type:
-          type: string
-          enum:
-            - definition
-            - book
-            - conference
-            - generic
-            - person
-            - software
-        data:
-          description: |
-            Data is an object that contains data of entity type. Each type has it own data structure, see `https://github.com/refto/data/{type}.sample.yaml` to understand data structure of specific type. (TODO: describe structure of each type here? (anyOf directive might help))
-          type: object
-          properties:
-            title:
-              type: string
-            description:
-              type: string
-            home_addr:
-              type: string
-            topics:
-              type: array
-              items:
-                type: string
-        created_at:
-          type: string
-          format: 'date-time'
-        updated_at:
-          type: string
-          format: 'date-time'
-        deleted_at:
-          type: string
-          format: 'date-time'
+  /collections/:
+    get:
+      tags:
+        - Collections
+      summary: Get list of user's collections
+      operationId: getCollections
+      parameters:
+        - $ref: './query-params.yaml#Page'
+        - $ref: './query-params.yaml#Limit'
+      responses:
+        '200':
+          description: List of collections
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    description: List of collections
+                    type: array
+                    items:
+                      $ref: './collections.yaml#Collection'
+                  count:
+                    description: Total collections count
+                    type: integer
+    post:
+      tags:
+        - Collections
+      summary: Create collection
+      operationId: createCollection
+      requestBody:
+        $ref: './collections.yaml#CreateCollectionRequest'
+      responses:
+        '201':
+          description: Created collection
+          content:
+            application/json:
+              schema:
+                $ref: './collections.yaml#Collection'
 
-    Topic:
-      type: object
-      properties:
-        id:
+  /collections/{id}/:
+    parameters:
+      - name: id
+        in: path
+        description: Collection ID
+        required: true
+        schema:
           type: integer
-        name:
-          type: string
+          format: int64
+    put:
+      tags:
+        - Collections
+      summary: Update collection
+      operationId: updateCollection
+      requestBody:
+        $ref: './collections.yaml#CreateCollectionRequest'
+      responses:
+        '200':
+          description: Updated collection
+          content:
+            application/json:
+              schema:
+                $ref: './collections.yaml#Collection'
+    delete:
+      tags:
+        - Collections
+      summary: Delete collection
+      operationId: deleteCollection
+      responses:
+        '200':
+          $ref: './responses.yaml#SuccessResponse'
+
+  /collections/{collectionID}/entities/{entityID}/:
+    parameters:
+      - name: collectionID
+        in: path
+        description: Collection ID
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: entityID
+        in: path
+        description: Entity ID
+        required: true
+        schema:
+          type: integer
+          format: int64
+    post:
+      tags:
+        - Collections
+        - Entities
+      summary: Add entity to collection
+      operationId: addEntityToCollection
+      responses:
+        '201':
+          $ref: './responses.yaml#SuccessResponse'
+    delete:
+      tags:
+        - Collections
+        - Entities
+      summary: Remove entity from collection
+      operationId: removeEntityFromCollection
+      responses:
+        '200':
+          $ref: './responses.yaml#SuccessResponse'

@@ -6,5 +6,5 @@ import (
 )
 
 func entityRoutes(r *gin.RouterGroup) {
-	r.GET("entities/", handler.SearchEntities)
+	r.GET("entities/", handler.GetEntities)
 }
