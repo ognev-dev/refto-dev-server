@@ -1,7 +1,10 @@
 package test
 
 import (
+	"fmt"
 	"testing"
+
+	"github.com/davecgh/go-spew/spew"
 
 	"github.com/refto/server/database/factory"
 	"github.com/refto/server/database/model"
@@ -122,6 +125,74 @@ func TestFilterEntitiesByCollection(t *testing.T) {
 		}
 
 		t.Errorf("unexpected entity in response (%+v)", v)
+		break
+	}
+}
+
+func TestGetEntityByID(t *testing.T) {
+	Logout()
+
+	e, err := factory.CreateEntity()
+	assert.NotError(t, err)
+
+	var resp model.Entity
+	TestGet(t, fmt.Sprintf("entities/%d/", e.ID), &resp)
+
+	assert.Equals(t, e.ID, resp.ID)
+}
+
+func TestGetEntityByID_ShouldGetCollections(t *testing.T) {
+	Authorise(t)
+
+	e, err := factory.CreateEntity()
+	assert.NotError(t, err)
+
+	col1, err := factory.CreateCollection(model.Collection{User: AuthUser})
+	assert.NotError(t, err)
+	col2, err := factory.CreateCollection(model.Collection{User: AuthUser})
+	assert.NotError(t, err)
+	col3, err := factory.CreateCollection(model.Collection{User: AuthUser})
+	assert.NotError(t, err)
+	colX, err := factory.CreateCollection()
+	assert.NotError(t, err)
+	_, err = factory.CreateCollectionEntity(model.CollectionEntity{
+		EntityID:     e.ID,
+		CollectionID: col1.ID,
+	})
+	assert.NotError(t, err)
+	_, err = factory.CreateCollectionEntity(model.CollectionEntity{
+		EntityID:     e.ID,
+		CollectionID: col2.ID,
+	})
+	assert.NotError(t, err)
+	_, err = factory.CreateCollectionEntity(model.CollectionEntity{
+		EntityID:     e.ID,
+		CollectionID: col3.ID,
+	})
+
+	// collection that is not create by current user
+	// should not be in response
+	assert.NotError(t, err)
+	_, err = factory.CreateCollectionEntity(model.CollectionEntity{
+		EntityID:     e.ID,
+		CollectionID: colX.ID,
+	})
+	assert.NotError(t, err)
+
+	var resp model.Entity
+	TestGet(t, fmt.Sprintf("entities/%d/", e.ID), &resp)
+
+	spew.Dump(resp)
+
+	assert.Equals(t, e.ID, resp.ID)
+	assert.True(t, 3 == len(resp.Collections))
+
+	for _, v := range resp.Collections {
+		if v.ID == col1.ID || v.ID == col2.ID || v.ID == col3.ID {
+			continue
+		}
+
+		t.Errorf("unexpected collection in response (%+v)", v)
 		break
 	}
 }

@@ -23,7 +23,8 @@ func SetCollection(c *gin.Context, m model.Collection) {
 type FilterCollections struct {
 	NoValidation
 	Pagination
-	UserID int64 `json:"-" form:"-"`
+	UserID   int64 `json:"-" form:"-"`
+	EntityID int64 `json:"-" form:"-"`
 }
 
 type CreateCollection struct {

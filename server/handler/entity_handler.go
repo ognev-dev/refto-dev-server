@@ -67,3 +67,29 @@ func GetEntities(c *gin.Context) {
 
 	c.JSON(http.StatusOK, resp)
 }
+
+func GetEntityByID(c *gin.Context) {
+	var id int64
+	if !BindID(c, &id) {
+		return
+	}
+
+	e, err := entity.FindByID(id)
+	if err != nil {
+		Abort(c, err)
+		return
+	}
+
+	if request.HasUser(c) {
+		e.Collections, _, err = collection.Filter(request.FilterCollections{
+			UserID:   request.User(c).ID,
+			EntityID: e.ID,
+		})
+		if err != nil {
+			Abort(c, err)
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, e)
+}

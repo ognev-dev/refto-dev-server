@@ -32,6 +32,7 @@ var autoTopicExceptions = []string{
 	"definition",
 }
 
+// TODO partial import
 func Import() (err error) {
 	// Mark all data as deleted,
 	// and while importing restore existing entities
@@ -56,6 +57,10 @@ func Import() (err error) {
 		return
 	}
 
+	// TODO: since collections introduced it not good to hard delete entities,
+	//  because that will be confusing when entity from collection simply disappear.
+	//  Maybe if entity is in any collection then keep it marked as deleted and display it as deleted when viewed in collection
+	//  Or implement notification system and inform everyone (that have deleted entity in their collection) about deleted entity
 	_, err = database.ORM().Exec("DELETE FROM entities WHERE deleted_at IS NOT NULL")
 	if err != nil {
 		return
@@ -132,7 +137,7 @@ func importDataFromDir() (err error) {
 		}
 
 		for _, name := range dataEl.Topics {
-			topicEl, err := topic.FirstOrCreate(name)
+			topicEl, err := topic.FirstOrCreate(name) // TODO keep cache in memory?
 			if err != nil {
 				return err
 			}

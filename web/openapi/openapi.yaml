@@ -81,6 +81,27 @@ paths:
                   topics:
                     description: List of topics aggregated from entities that match filter/search criteria. Topics from filter request is excluded from this list.
                     type: string
+  /entities/{id}/:
+    parameters:
+      - name: id
+        in: path
+        description: Entity ID
+        required: true
+        schema:
+          type: integer
+          format: int64
+    get:
+      tags:
+        - Entities
+      summary: Get entity by ID
+      operationId: getEntity
+      responses:
+        '200':
+          description: Entity
+          content:
+            application/json:
+              schema:
+                $ref: './entities.yaml#EntityWithCollections'
   /topics/:
     get:
       tags:

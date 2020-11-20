@@ -12,12 +12,18 @@ import (
 )
 
 func Filter(req request.FilterCollections) (data []model.Collection, count int, err error) {
-	count, err = database.ORM().
+	q := database.ORM().
 		Model(&data).
 		Apply(filter.PageFilter(req.Page, req.Limit)).
 		Apply(filter.UserFilter(req.UserID)).
-		SelectAndCount()
+		Order("created_at DESC")
 
+	if req.EntityID != 0 {
+		q.Join("JOIN collection_entities ce ON ce.collection_id=collection.id").
+			Where("ce.entity_id = ?", req.EntityID)
+	}
+
+	count, err = q.SelectAndCount()
 	return
 }
 

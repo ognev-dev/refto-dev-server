@@ -7,7 +7,7 @@ import (
 
 type Pagination struct {
 	Page  int `json:"page,omitempty" form:"page"`
-	Limit int `json:"limit,omitempty" form:"per_page"`
+	Limit int `json:"limit,omitempty" form:"limit"`
 }
 
 type NoValidation struct{}
@@ -18,6 +18,11 @@ func (r *NoValidation) Validate(*gin.Context) (err error) {
 
 const ctxUserKey = "request_user"
 const ctxClientKey = "request_client"
+
+func HasUser(c *gin.Context) (ok bool) {
+	_, ok = c.Get(ctxUserKey)
+	return
+}
 
 func User(c *gin.Context) model.User {
 	u := c.MustGet(ctxUserKey)

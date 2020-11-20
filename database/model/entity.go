@@ -17,7 +17,8 @@ type Entity struct {
 	UpdatedAt *time.Time `json:"updated_at"`
 	DeletedAt *time.Time `json:"deleted_at"`
 
-	Topics []Topic `json:"-" pg:"-"`
+	Topics      []Topic      `json:"-" pg:"-"`
+	Collections []Collection `json:"collections" pg:"-"`
 }
 
 func (m *Entity) BeforeInsert(ctx context.Context) (context.Context, error) {

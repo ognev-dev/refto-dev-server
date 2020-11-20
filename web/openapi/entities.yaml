@@ -40,3 +40,12 @@ Entity:
     deleted_at:
       type: string
       format: 'date-time'
+
+EntityWithCollections:
+  allOf:
+    - $ref: './entities.yaml#Entity'
+    - properties:
+        collections:
+          type: array
+          items:
+            $ref: './collections.yaml#Collection'
