@@ -49,6 +49,45 @@ func TestGetCollections(t *testing.T) {
 	}
 }
 
+func TestGetCollections_FilterByName(t *testing.T) {
+	Authorise(t)
+
+	c1, err := factory.CreateCollection(model.Collection{UserID: AuthUser.ID, Name: "111Name"})
+	assert.NotError(t, err)
+	c2, err := factory.CreateCollection(model.Collection{UserID: AuthUser.ID, Name: "222Name"})
+	assert.NotError(t, err)
+	c3, err := factory.CreateCollection(model.Collection{UserID: AuthUser.ID, Name: "333Name"})
+	assert.NotError(t, err)
+	_, err = factory.CreateCollection(model.Collection{UserID: AuthUser.ID, Name: "xxx"}) // should not be in response
+	assert.NotError(t, err)
+	_, err = factory.CreateCollection(model.Collection{Name: "xxxName"}) // should not be in response
+	assert.NotError(t, err)
+
+	req := request.FilterCollections{
+		Name: "name",
+	}
+	var resp response.FilterCollections
+
+	TestFilter(t, "collections", req, &resp)
+
+	assert.True(t, 3 == resp.Count)
+	assert.True(t, 3 == len(resp.Data))
+
+	for _, v := range resp.Data {
+		if v.UserID != AuthUser.ID {
+			t.Errorf("collection must be owned by authorized user. expecting %d, got %d", v.UserID, AuthUser.ID)
+			break
+		}
+
+		if v.ID == c1.ID || v.ID == c2.ID || v.ID == c3.ID {
+			continue
+		}
+
+		t.Errorf("unexpected collection in response (%+v)", v)
+		break
+	}
+}
+
 func TestCreateCollection(t *testing.T) {
 	Authorise(t)
 

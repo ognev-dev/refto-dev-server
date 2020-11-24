@@ -141,6 +141,12 @@ paths:
       parameters:
         - $ref: './query-params.yaml#Page'
         - $ref: './query-params.yaml#Limit'
+        - name: name
+          in: query
+          description: Filter by substring match in name
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           description: List of collections

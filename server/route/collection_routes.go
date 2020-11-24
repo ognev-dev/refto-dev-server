@@ -16,6 +16,10 @@ func collectionRoutes(r *gin.RouterGroup) {
 		PUT("/", handler.UpdateCollection).
 		DELETE("/", handler.DeleteCollection)
 
+	r.Group("collections/:token/").
+		Use(middleware.RequestCollection("token")).
+		GET("/", handler.GetCollectionByToken)
+
 	r.Group("collections/:id/entities/:entity_id/").
 		Use(middleware.RequestCollection("id")).
 		Use(middleware.RequestEntity("entity_id")).

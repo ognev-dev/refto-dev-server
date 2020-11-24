@@ -19,8 +19,16 @@ func Filter(req request.FilterCollections) (data []model.Collection, count int, 
 		Order("created_at DESC")
 
 	if req.EntityID != 0 {
-		q.Join("JOIN collection_entities ce ON ce.collection_id=collection.id").
-			Where("ce.entity_id = ?", req.EntityID)
+		if req.Available {
+			q.Where("collection.id NOT IN (SELECT collection_id FROM collection_entities WHERE entity_id = ?)", req.EntityID)
+		} else {
+			q.Join("JOIN collection_entities ce ON ce.collection_id=collection.id").
+				Where("ce.entity_id = ?", req.EntityID)
+		}
+	}
+
+	if req.Name != "" {
+		q.Where("collection.name  ILIKE ?", "%"+req.Name+"%")
 	}
 
 	count, err = q.SelectAndCount()
@@ -65,6 +73,19 @@ func FindByID(id int64) (m model.Collection, err error) {
 	return
 }
 
+func FindByToken(token string) (m model.Collection, err error) {
+	err = database.ORM().
+		Model(&m).
+		Where("token = ?", token).
+		First()
+
+	if err == pg.ErrNoRows {
+		err = errors.New("collection not found")
+	}
+
+	return
+}
+
 func AddEntity(collectionID, entityID int64) (err error) {
 	err = database.ORM().Insert(&model.CollectionEntity{
 		CollectionID: collectionID,
@@ -87,11 +108,11 @@ func RemoveEntity(collectionID, entityID int64) (err error) {
 // Creating unique token that is only 1 lowercase char
 // and increase it's length on each failed attempt
 func NewToken() (token string, err error) {
-	data := []byte("abcdefghijklmnopqrstuvwxyz")
+	chars := []byte("-.abcdefghijklmnopqrstuvwxyz1234567890")
 	for length := 1; ; length++ {
 		t := make([]byte, length)
 		for char := 0; char < length; char++ {
-			t[char] = data[rand.Intn(len(data))]
+			t[char] = chars[rand.Intn(len(chars))]
 		}
 		token = string(t)
 		err = database.ORM().

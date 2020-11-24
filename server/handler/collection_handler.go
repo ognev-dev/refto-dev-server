@@ -28,6 +28,16 @@ func GetCollections(c *gin.Context) {
 	})
 }
 
+func GetCollectionByToken(c *gin.Context) {
+	col, err := collection.FindByToken(c.Param("token"))
+	if err != nil {
+		Abort(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, col)
+}
+
 func CreateCollection(c *gin.Context) {
 	var req request.CreateCollection
 	if !bindJSON(c, &req) {
