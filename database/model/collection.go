@@ -14,7 +14,8 @@ type Collection struct {
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt *time.Time `json:"updated_at"`
 
-	User *User `json:"-"`
+	EntitiesCount int   `json:"entities_count" pg:"-"`
+	User          *User `json:"-"`
 }
 
 func (m *Collection) BeforeInsert(ctx context.Context) (context.Context, error) {

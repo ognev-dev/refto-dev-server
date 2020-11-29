@@ -147,6 +147,12 @@ paths:
           required: false
           schema:
             type: string
+        - name: wec
+          in: query
+          description: Return data with entities count in collection
+          required: false
+          schema:
+            type: boolean
       responses:
         '200':
           description: List of collections

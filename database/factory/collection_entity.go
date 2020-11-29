@@ -11,18 +11,25 @@ func MakeCollectionEntity(opt ...model.CollectionEntity) (m model.CollectionEnti
 	}
 
 	if m.CollectionID == 0 {
-		collectionElem, err := CreateCollection()
-		if err != nil {
-			return m, err
+		if m.Collection == nil {
+			m.Collection = &model.Collection{}
+			*m.Collection, err = CreateCollection()
+			if err != nil {
+				return m, err
+			}
 		}
-		m.CollectionID = collectionElem.ID
+		m.CollectionID = m.Collection.ID
 	}
 	if m.EntityID == 0 {
-		entityElem, err := CreateEntity()
-		if err != nil {
-			return m, err
+		if m.Entity == nil {
+			m.Entity = &model.Entity{}
+			*m.Entity, err = CreateEntity()
+			if err != nil {
+				return m, err
+			}
 		}
-		m.EntityID = entityElem.ID
+
+		m.EntityID = m.Entity.ID
 	}
 
 	return

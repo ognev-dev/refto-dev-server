@@ -47,6 +47,39 @@ func TestGetCollections(t *testing.T) {
 		t.Errorf("unexpected collection in response (%+v)", v)
 		break
 	}
+
+	// Test entities count
+	// create 3 entities for c1
+	_, err = factory.CreateCollectionEntity(model.CollectionEntity{Collection: &c1})
+	assert.NotError(t, err)
+	_, err = factory.CreateCollectionEntity(model.CollectionEntity{Collection: &c1})
+	assert.NotError(t, err)
+	_, err = factory.CreateCollectionEntity(model.CollectionEntity{Collection: &c1})
+	assert.NotError(t, err)
+	// create 2 entities for c3
+	_, err = factory.CreateCollectionEntity(model.CollectionEntity{Collection: &c3})
+	assert.NotError(t, err)
+	_, err = factory.CreateCollectionEntity(model.CollectionEntity{Collection: &c3})
+	assert.NotError(t, err)
+
+	assertCounts := map[int64]int{
+		c1.ID: 3,
+		c2.ID: 0,
+		c3.ID: 2,
+	}
+
+	req.WithEntitiesCount = true
+	TestFilter(t, "collections", req, &resp)
+
+	for _, v := range resp.Data {
+		expectCount, ok := assertCounts[v.ID]
+		if !ok {
+			t.Error("invalid collection in response!")
+			break
+		}
+
+		assert.Equals(t, expectCount, v.EntitiesCount, fmt.Sprintf("collection %d: invalid entities count", v.ID))
+	}
 }
 
 func TestGetCollections_FilterByName(t *testing.T) {

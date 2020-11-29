@@ -28,7 +28,14 @@ func Filter(req request.FilterCollections) (data []model.Collection, count int, 
 	}
 
 	if req.Name != "" {
-		q.Where("collection.name  ILIKE ?", "%"+req.Name+"%")
+		q.Where("collection.name ILIKE ?", "%"+req.Name+"%")
+	}
+
+	if req.WithEntitiesCount {
+		q.Join("LEFT JOIN collection_entities ce2 ON ce2.collection_id=collection.id").
+			ColumnExpr("collection.*, COUNT(ce2.collection_id) AS entities_count").
+			Group("collection.id")
+
 	}
 
 	count, err = q.SelectAndCount()
