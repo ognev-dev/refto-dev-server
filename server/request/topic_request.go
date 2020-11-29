@@ -1,9 +1,6 @@
 package request
 
-type SearchTopic struct {
+type FilterTopics struct {
+	NoValidation
 	Name string `json:"name,omitempty" form:"name"`
-}
-
-func (r *SearchTopic) Validate() (err error) {
-	return
 }

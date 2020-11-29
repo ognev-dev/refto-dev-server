@@ -13,7 +13,7 @@ import (
 	"github.com/refto/server/test/assert"
 )
 
-func TestSearchTopic(t *testing.T) {
+func TestFilterTopic(t *testing.T) {
 	// Create test data
 	topics := []string{"test_this", "test_that", "test_else"}
 	for _, name := range topics {
@@ -21,8 +21,8 @@ func TestSearchTopic(t *testing.T) {
 		assert.NotError(t, err)
 	}
 
-	var req request.SearchTopic
-	var resp response.SearchTopic
+	var req request.FilterTopics
+	var resp response.FilterTopics
 
 	topicsCount := 0
 	_, err := database.ORM().Query(pg.Scan(&topicsCount), "SELECT COUNT(id) FROM topics")
@@ -35,7 +35,7 @@ func TestSearchTopic(t *testing.T) {
 	}
 	for query, count := range cases {
 		req.Name = query
-		TestSearch(t, "topics", req, &resp)
+		TestFilter(t, "topics", req, &resp)
 		assert.Equals(t, count, resp.Count)
 	}
 }

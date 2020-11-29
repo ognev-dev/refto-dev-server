@@ -29,6 +29,14 @@ func PageFilter(page, limit int) Filter {
 	}
 }
 
+func UserFilter(userID int64) Filter {
+	return func(q *orm.Query) (*orm.Query, error) {
+		q.Where("user_id = ?", userID)
+
+		return q, nil
+	}
+}
+
 func TrashedFilter(trashed bool, optTable ...string) Filter {
 	col := "deleted_at"
 	if len(optTable) == 1 {

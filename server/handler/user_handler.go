@@ -38,7 +38,7 @@ func LoginWithGithub(c *gin.Context) {
 
 	token := &model.AuthToken{
 		UserID:     usr.ID,
-		ClientName: c.GetString("ClientName"),
+		ClientName: request.Client(c),
 		ClientIP:   c.Request.RemoteAddr,
 		UserAgent:  c.Request.UserAgent(),
 	}

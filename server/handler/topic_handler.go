@@ -9,19 +9,19 @@ import (
 	"github.com/refto/server/service/topic"
 )
 
-func SearchTopics(c *gin.Context) {
-	var req request.SearchTopic
+func GetTopics(c *gin.Context) {
+	var req request.FilterTopics
 	if !bindQuery(c, &req) {
 		return
 	}
 
-	data, count, err := topic.Search(req)
+	data, count, err := topic.Filter(req)
 	if err != nil {
 		Abort(c, err)
 		return
 	}
 
-	resp := response.SearchTopic{
+	resp := response.FilterTopics{
 		Data:  data,
 		Count: count,
 	}

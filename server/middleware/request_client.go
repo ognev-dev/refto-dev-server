@@ -2,11 +2,10 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/refto/server/server/request"
 )
 
 func RequestClient(c *gin.Context) {
-	name := c.Request.Header.Get("X-Client")
-
-	c.Set("ClientName", name)
+	request.SetClient(c)
 	c.Next()
 }

@@ -15,16 +15,21 @@ import (
 	"github.com/go-pg/pg/v9/orm"
 	"github.com/refto/server/config"
 	"github.com/refto/server/database"
+	"github.com/refto/server/database/factory"
+	"github.com/refto/server/database/model"
 	"github.com/refto/server/logger"
 	"github.com/refto/server/server/route"
+	authtoken "github.com/refto/server/service/auth_token"
 	"github.com/refto/server/test/assert"
 	"github.com/refto/server/util"
 )
 
 var (
-	DB     orm.DB
-	router *gin.Engine
-	Conf   *config.Config
+	DB        orm.DB
+	AuthUser  *model.User
+	authToken string
+	router    *gin.Engine
+	Conf      *config.Config
 )
 
 type Headers map[string]string
@@ -78,13 +83,19 @@ func makeRequest(t *testing.T, r Request) *httptest.ResponseRecorder {
 	)
 	assert.NotError(t, err)
 	t.Log(fmt.Sprintf("> (%d) %s %s", r.AssertStatus, r.method, r.Path))
-	req.Header.Set("Content-Type", ContentTypeJSON)
+	if r.method == http.MethodPost || r.method == http.MethodPut {
+		req.Header.Set("Content-Type", ContentTypeJSON)
+	}
 	req.Header.Set("Accept", ContentTypeJSON)
+	req.Header.Set("X-Client", "test")
 
 	for k, v := range r.Headers {
 		req.Header.Set(k, v)
 	}
 
+	if authToken != "" {
+		req.Header.Set("Authorization", "Bearer "+authToken)
+	}
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -233,8 +244,8 @@ func TestGet(t *testing.T, path string, response interface{}) *httptest.Response
 	return GET(t, req)
 }
 
-// TestSearch makes "get" request with query params
-func TestSearch(t *testing.T, path string, request, response interface{}) *httptest.ResponseRecorder {
+// TestFilter makes "get" request with query params
+func TestFilter(t *testing.T, path string, request, response interface{}) *httptest.ResponseRecorder {
 	query, err := util.StructToQueryString(request)
 	if err != nil {
 		t.Fatal(err.Error())
@@ -255,4 +266,37 @@ func TestSearch(t *testing.T, path string, request, response interface{}) *httpt
 	}
 
 	return GET(t, req)
+}
+
+func Authorise(t *testing.T) *model.User {
+	if AuthUser != nil && authToken != "" {
+		return AuthUser
+	}
+	user, err := factory.CreateUser()
+	assert.NotError(t, err)
+	AuthoriseAs(t, &user)
+
+	return &user
+}
+
+func AuthoriseAs(t *testing.T, user *model.User) {
+	token := &model.AuthToken{
+		UserID:     user.ID,
+		ClientName: "test",
+	}
+	err := authtoken.Create(token)
+	assert.NotError(t, err)
+
+	AuthUser = user
+	authToken = authtoken.Sign(token)
+}
+
+func AuthoriseNew(t *testing.T) {
+	Logout()
+	Authorise(t)
+}
+
+func Logout() {
+	AuthUser = nil
+	authToken = ""
 }

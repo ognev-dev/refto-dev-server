@@ -2,7 +2,7 @@ package response
 
 import "github.com/refto/server/database/model"
 
-type SearchTopic struct {
+type FilterTopics struct {
 	Data  []model.Topic `json:"data"`
 	Count int           `json:"count"`
 }

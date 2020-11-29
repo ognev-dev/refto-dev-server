@@ -2,28 +2,30 @@ package handler
 
 import (
 	"bytes"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"runtime/debug"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg/v9"
 	"github.com/refto/server/config"
-	serverError "github.com/refto/server/server/error"
+	se "github.com/refto/server/server/error"
 	"github.com/refto/server/server/response"
 	log "github.com/sirupsen/logrus"
 )
 
 type Validatable interface {
-	Validate() error
+	Validate(c *gin.Context) error
 }
 
 func abort400(c *gin.Context, err error) {
-	Abort(c, serverError.New400(err.Error()))
+	Abort(c, se.New400(err.Error()))
 }
 
 func abort422(c *gin.Context, err error) {
-	Abort(c, serverError.New422(err.Error()))
+	Abort(c, se.New422(err.Error()))
 }
 
 func Abort(c *gin.Context, err error) {
@@ -31,13 +33,14 @@ func Abort(c *gin.Context, err error) {
 	code := http.StatusInternalServerError
 
 	switch e := err.(type) {
-	case serverError.Error:
+	case se.Error:
 		code = e.Code
 		resp.Error = e.Error()
-	case serverError.List:
-		resp.Errors = err.(serverError.List)
-	case serverError.Input:
-		resp.InputErrors = err.(serverError.Input)
+	case se.List:
+		resp.Errors = err.(se.List)
+	case se.Input:
+		resp.InputErrors = err.(se.Input)
+		code = http.StatusUnprocessableEntity
 	default:
 		resp.Error = err.Error()
 		switch err {
@@ -55,34 +58,56 @@ func Abort(c *gin.Context, err error) {
 }
 
 func bindJSON(c *gin.Context, req Validatable) (ok bool) {
-	err := c.ShouldBindJSON(req)
-	if err != nil {
+	if err := c.ShouldBindJSON(req); err != nil {
 		abort400(c, err)
 		return
 	}
 
-	err = req.Validate()
-	if err != nil {
-		abort422(c, err)
+	return validRequest(c, req)
+}
+
+func bindQuery(c *gin.Context, req Validatable) (ok bool) {
+	if err := c.ShouldBindQuery(req); err != nil {
+		abort400(c, err)
+		return
+	}
+
+	return validRequest(c, req)
+}
+
+func validRequest(c *gin.Context, req Validatable) (ok bool) {
+	if err := req.Validate(c); err != nil {
+		Abort(c, err)
 		return
 	}
 
 	return true
 }
 
-func bindQuery(c *gin.Context, req Validatable) (ok bool) {
-	err := c.ShouldBindQuery(req)
-	if err != nil {
-		abort400(c, err)
+func BindID(c *gin.Context, id *int64, paramNameOpt ...string) (ok bool) {
+	name := "id"
+	if len(paramNameOpt) == 1 {
+		name = paramNameOpt[0]
+	}
+
+	val := c.Param(name)
+	if val == "" {
+		abort400(c, errors.New("ID param missing from request"))
 		return
 	}
 
-	err = req.Validate()
+	intVal, err := strconv.ParseInt(val, 10, 64)
 	if err != nil {
-		abort422(c, err)
+		abort400(c, errors.New("ID param must be int64"))
 		return
 	}
 
+	if intVal < 1 {
+		abort400(c, errors.New("invalid ID"))
+		return
+	}
+
+	*id = intVal
 	return true
 }
 
