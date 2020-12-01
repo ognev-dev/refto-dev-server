@@ -24,10 +24,6 @@ func abort400(c *gin.Context, err error) {
 	Abort(c, se.New400(err.Error()))
 }
 
-func abort422(c *gin.Context, err error) {
-	Abort(c, se.New422(err.Error()))
-}
-
 func Abort(c *gin.Context, err error) {
 	resp := response.Error{}
 	code := http.StatusInternalServerError

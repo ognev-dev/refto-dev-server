@@ -171,6 +171,8 @@ github:
 dir:
   data: "$remoteProjectDir/data/"
   logs: ""
+
+auth_token_life_time: 120h
 EOM
 
 echo "Migrating database..."

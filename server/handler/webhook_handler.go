@@ -67,7 +67,7 @@ func ImportDataFromRepoByGitHubWebHook(c *gin.Context) {
 	}
 
 	// import data on goroutine, because it is nothing to do with request
-	// TODO: should make selective import using diff
+	// TODO: should make selective/partial import using diff
 	go func() {
 		log.Info("Starting data import from " + conf.GitHub.DataRepo + " to " + conf.Dir.Data)
 		err := os.RemoveAll(conf.Dir.Data)
@@ -92,7 +92,7 @@ func ImportDataFromRepoByGitHubWebHook(c *gin.Context) {
 
 		err = dataimport.Import()
 		if err != nil {
-			log.Error("[ERROR] data validate: " + err.Error())
+			log.Error("[ERROR] data import: " + err.Error())
 			return
 		}
 

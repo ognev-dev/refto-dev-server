@@ -18,8 +18,7 @@ type Schema struct {
 }
 
 type File struct {
-	// I need Path only to display informative error messages
-	Path string
+	Path string //  Path only to display informative error messages
 	Data []byte
 }
 
