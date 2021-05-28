@@ -46,6 +46,7 @@ func Register(r *gin.Engine) {
 	)
 	addRoutes(authApi,
 		collectionRoutes,
+		repositoryRoutes,
 	)
 
 	r.NoRoute(func(c *gin.Context) {

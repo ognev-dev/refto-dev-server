@@ -18,6 +18,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// ImportDataFromRepoByGitHubWebHook is a webhook's handler that is triggered by GitHub
+// Once commits pushed to main branch, Github will send request to a route which will call this method
+// (Trigger must set manually on Github)
+// Here we simply check for valid  signature, then clone repo to have data locally and then import it.
+// Note: push to main branch must done thru PRs, otherwise I'm not sure if request body will be correct, I didn't test this case
 func ImportDataFromRepoByGitHubWebHook(c *gin.Context) {
 	conf := config.Get()
 	var headers request.GitHubWebHookHeaders
@@ -60,6 +65,8 @@ func ImportDataFromRepoByGitHubWebHook(c *gin.Context) {
 		return
 	}
 
+	// this is due to config is not properly set,
+	// but anyway it is good to check
 	if req.Repo.CloneURL != conf.GitHub.DataRepo {
 		log.Errorf("clone repo (%s) is not same as data repo (%s)", req.Repo.CloneURL, config.Get().GitHub.DataRepo)
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -67,7 +74,7 @@ func ImportDataFromRepoByGitHubWebHook(c *gin.Context) {
 	}
 
 	// import data on goroutine, because it is nothing to do with request
-	// TODO: should make selective import using diff
+	// TODO: should make selective import using PR's diff
 	go func() {
 		log.Info("Starting data import from " + conf.GitHub.DataRepo + " to " + conf.Dir.Data)
 		err := os.RemoveAll(conf.Dir.Data)
@@ -98,6 +105,7 @@ func ImportDataFromRepoByGitHubWebHook(c *gin.Context) {
 
 		log.Info("Data import from repository completed")
 	}()
+
 	c.JSON(http.StatusOK, "ok")
 }
 

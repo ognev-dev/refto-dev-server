@@ -9,6 +9,7 @@ import (
 const PushEvent = "push"
 const PullRequestEvent = "pull_request"
 
+// SigPrefix
 // GitHub adds a prefix "sha1=" to the hash
 const SigPrefix = "sha1="
 

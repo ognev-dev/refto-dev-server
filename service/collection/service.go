@@ -112,11 +112,9 @@ func RemoveEntity(collectionID, entityID int64) (err error) {
 	return
 }
 
-// NewToken ...
-// Create token of 1 lowercase char
-// Increase it's length by one char if such token already exists
+// NewToken creates token of 1 lowercase char
+// Increases it's length by one char if such token already exists
 // and do so until unique token is created
-
 func NewToken() (token string, err error) {
 	chars := []byte("-.abcdefghijklmnopqrstuvwxyz1234567890")
 	for length := 1; ; length++ {

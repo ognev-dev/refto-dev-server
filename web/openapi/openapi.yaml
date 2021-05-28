@@ -12,10 +12,11 @@ info:
 #    name: Apache 2.0
 #    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  # %SERVER_URL% is placeholder that will be replaced by server with actual URL
+  # %SERVER_URL% is a placeholder that will be replaced by server with actual URL
   # this way openapi's server URL will match the server that it is served by
   - url: "%SERVER_URL%"
 paths:
+  # Entities
   /entities/:
     get:
       tags:
@@ -102,6 +103,8 @@ paths:
             application/json:
               schema:
                 $ref: './entities.yaml#EntityWithCollections'
+
+  # Topics
   /topics/:
     get:
       tags:
@@ -132,6 +135,7 @@ paths:
                     description: Count of topics
                     type: integer
 
+  # Collections
   /collections/:
     get:
       tags:
@@ -183,7 +187,6 @@ paths:
             application/json:
               schema:
                 $ref: './collections.yaml#Collection'
-
   /collections/{id}/:
     parameters:
       - name: id
@@ -215,7 +218,6 @@ paths:
       responses:
         '200':
           $ref: './responses.yaml#SuccessResponse'
-
   /collections/{collectionID}/entities/{entityID}/:
     parameters:
       - name: collectionID
@@ -250,3 +252,20 @@ paths:
       responses:
         '200':
           $ref: './responses.yaml#SuccessResponse'
+
+  # Repositories
+  /repositories/:
+    post:
+      tags:
+        - Repositories
+      summary: Add repository
+      operationId: addRepository
+      requestBody:
+        $ref: './repositories.yaml#CreateRepositoryReq'
+      responses:
+        '201':
+          description: Repository's secret
+          content:
+            application/json:
+              schema:
+                $ref: './repositories.yaml#CreateRepositoryResp'

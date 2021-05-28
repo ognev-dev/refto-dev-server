@@ -1,0 +1,35 @@
+CreateRepositoryReq:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          path:
+            description: Path to data repository
+            type: string
+            example: "refto/data"
+          name:
+            description: Name of repository
+            type: string
+            example: data
+          description:
+            description: Description of repository
+            example: A collection of awesome creations that is useful to software developers
+            type: string
+          type:
+            description: >
+              Type can be one of:
+                "private" - data is available only to user who added it
+                "global" - data is available by default at global level to anyone
+                "public" - data is available by specifically selecting this repo from repos list or search filters
+                "hidden" - data (and repo) will not be listed, unless accessed by URL
+            type: string
+            enum: ["private", "global", "public", "hidden"]
+
+CreateRepositoryResp:
+  type: object
+  properties:
+    secret:
+      description: "A secret string that should be added to GitHub's webhook (TODO: explain more)"
+      type: string

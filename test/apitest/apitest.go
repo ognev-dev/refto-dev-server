@@ -11,6 +11,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/refto/server/server/response"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg/v9/orm"
 	"github.com/refto/server/config"
@@ -196,6 +198,19 @@ func TestCreate(t *testing.T, path string, body, response interface{}) *httptest
 	}
 
 	return POST(t, req)
+}
+
+// TestCreate422 makes "create" POST request that expects 422 status code
+func TestCreate422(t *testing.T, path string, body interface{}) (resp response.Error, rec *httptest.ResponseRecorder) {
+	req := Request{
+		Path:         path,
+		Body:         body,
+		BindResponse: &resp,
+		AssertStatus: http.StatusUnprocessableEntity,
+	}
+
+	rec = POST(t, req)
+	return
 }
 
 // TestUpdate makes "update" request
