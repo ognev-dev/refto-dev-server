@@ -7,4 +7,5 @@ import (
 
 func userRoutes(r *gin.RouterGroup) {
 	r.POST("user/login/", handler.LoginWithGithub)
+	r.GET("user/repositories/", handler.GetUserRepositories)
 }

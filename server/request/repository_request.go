@@ -30,6 +30,10 @@ type FilterRepositories struct {
 	Pagination
 	Path string `json:"path" form:"path"`
 	Name string `json:"name" form:"name"`
+
+	// internal only
+	Types  []model.RepositoryType `json:"-" form:"-"`
+	UserID int64                  `json:"-" form:"-"`
 }
 
 type CreateRepository struct {

@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
-
 	"github.com/refto/server/database/factory"
 	"github.com/refto/server/database/model"
 	"github.com/refto/server/server/request"

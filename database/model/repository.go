@@ -30,7 +30,7 @@ type Repository struct {
 
 	// Confirmed is a flag to mark that user is confirmed access to repo
 	// Confirmed is set to true on first successful import
-	Confirmed *bool `json:"-"`
+	Confirmed *bool `json:"confirmed"`
 
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt *time.Time `json:"updated_at"`

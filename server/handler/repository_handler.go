@@ -3,6 +3,8 @@ package handler
 import (
 	"net/http"
 
+	"github.com/refto/server/database/model"
+
 	"github.com/refto/server/service/repository"
 
 	"github.com/gin-gonic/gin"
@@ -17,17 +19,39 @@ func GetRepositories(c *gin.Context) {
 		return
 	}
 
-	//req.UserID = request.User(c).ID
-	//data, count, err := collection.Filter(req)
-	//if err != nil {
-	//	Abort(c, err)
-	//	return
-	//}
-	//
-	//c.JSON(http.StatusOK, response.FilterRepositories{
-	//	Data:  data,
-	//	Count: count,
-	//})
+	req.Types = []model.RepositoryType{
+		model.RepositoryTypeGlobal,
+		model.RepositoryTypePublic,
+	}
+	data, count, err := repository.Filter(req)
+	if err != nil {
+		Abort(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, response.FilterRepositories{
+		Data:  data,
+		Count: count,
+	})
+}
+
+func GetUserRepositories(c *gin.Context) {
+	var req request.FilterRepositories
+	if !bindQuery(c, &req) {
+		return
+	}
+
+	req.UserID = request.User(c).ID
+	data, count, err := repository.Filter(req)
+	if err != nil {
+		Abort(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, response.FilterRepositories{
+		Data:  data,
+		Count: count,
+	})
 }
 
 func GetRepositoryByToken(c *gin.Context) {
@@ -58,6 +82,27 @@ func CreateRepository(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, resp)
+}
+
+func GetNewRepositorySecret(c *gin.Context) {
+	userID := request.User(c).ID
+	repo := request.Repository(c)
+	if userID != repo.UserID {
+		Abort(c, repository.ErrOwnershipViolation)
+		return
+	}
+
+	secret, err := repository.NewSecret(repo.ID)
+	if err != nil {
+		Abort(c, err)
+		return
+	}
+
+	resp := response.CreateRepository{
+		Secret: secret,
+	}
+
+	c.JSON(http.StatusOK, resp)
 }
 
 func UpdateRepository(c *gin.Context) {

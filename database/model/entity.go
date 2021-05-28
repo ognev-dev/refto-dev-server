@@ -16,6 +16,7 @@ type Entity struct {
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt *time.Time `json:"updated_at"`
 	DeletedAt *time.Time `json:"deleted_at"`
+	RepoID    int64      `json:"repo_id"`
 
 	Topics      []Topic      `json:"-" pg:"-"`
 	Collections []Collection `json:"collections" pg:"-"`

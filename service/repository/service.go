@@ -3,8 +3,10 @@ package repository
 import (
 	"github.com/go-pg/pg/v9"
 	"github.com/refto/server/database"
+	"github.com/refto/server/database/filter"
 	"github.com/refto/server/database/model"
 	"github.com/refto/server/errors"
+	"github.com/refto/server/server/request"
 	"github.com/refto/server/util"
 )
 
@@ -12,39 +14,39 @@ var (
 	ErrUserAlreadyAddedRepo = errors.Unprocessable("You already added this repository before")
 	ErrRepoAlreadyClaimed   = errors.Unprocessable("Another user already added this repository")
 	ErrRepoNotFoundByPath   = errors.NotFound("Repository is not found by path")
+	ErrOwnershipViolation   = errors.NotFound("You are not the owner of repository, how dare are you?")
 )
 
-//func Filter(req request.FilterCollections) (data []model.Collection, count int, err error) {
-//	q := database.ORM().
-//		Model(&data).
-//		Apply(filter.PageFilter(req.Page, req.Limit)).
-//		Apply(filter.UserFilter(req.UserID)).
-//		Order("created_at DESC")
-//
-//	if req.EntityID != 0 {
-//		if req.Available {
-//			q.Where("collection.id NOT IN (SELECT collection_id FROM collection_entities WHERE entity_id = ?)", req.EntityID)
-//		} else {
-//			q.Join("JOIN collection_entities ce ON ce.collection_id=collection.id").
-//				Where("ce.entity_id = ?", req.EntityID)
-//		}
-//	}
-//
-//	if req.Name != "" {
-//		q.Where("collection.name ILIKE ?", "%"+req.Name+"%")
-//	}
-//
-//	if req.WithEntitiesCount {
-//		q.Join("LEFT JOIN collection_entities ce2 ON ce2.collection_id=collection.id").
-//			ColumnExpr("collection.*, COUNT(ce2.collection_id) AS entities_count").
-//			Group("collection.id")
-//
-//	}
-//
-//	count, err = q.SelectAndCount()
-//	return
-//}
-//
+func Filter(req request.FilterRepositories) (data []model.Repository, count int, err error) {
+	q := database.ORM().
+		Model(&data).
+		Apply(filter.PageFilter(req.Page, req.Limit)).
+		Order("created_at DESC")
+
+	if req.UserID > 0 {
+		q.Apply(filter.UserFilter(req.UserID))
+	}
+
+	if req.Name != "" {
+		q.Where("collection.name ILIKE ?", "%"+req.Name+"%")
+	}
+
+	if req.Name != "" && len(req.Name) > 2 {
+		q.Where("repository.name ILIKE ?", "%"+req.Name+"%")
+	}
+	if req.Path != "" && len(req.Name) > 2 {
+		q.Where("repository.path ILIKE ?", "%"+req.Path+"%")
+	}
+	if len(req.Types) == 1 {
+		q.Where("repository.type = ?", req.Types[0])
+	}
+	if len(req.Types) > 1 {
+		q.WhereIn("repository.type IN (?)", req.Types)
+	}
+
+	count, err = q.SelectAndCount()
+	return
+}
 
 func Create(m *model.Repository) (secret string, err error) {
 	var existing model.Repository
@@ -73,6 +75,27 @@ func Create(m *model.Repository) (secret string, err error) {
 	m.Confirmed = &confirmed
 
 	err = database.ORM().Insert(m)
+	return
+}
+
+func NewSecret(repoID int64) (secret string, err error) {
+	secret = util.RandomString()
+	hash, err := util.HashPassword(secret)
+	if err != nil {
+		return
+	}
+
+	err = UpdateSecret(repoID, hash)
+	return
+}
+
+func UpdateSecret(repoID int64, secret string) (err error) {
+	_, err = database.ORM().
+		Model(&model.Repository{}).
+		Where("id = ?", repoID).
+		Set("secret = ?", secret).
+		Update()
+
 	return
 }
 

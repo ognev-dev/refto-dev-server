@@ -34,6 +34,14 @@ func MakeEntity(opt ...model.Entity) (m model.Entity, err error) {
 			}
 		}
 	}
+	if m.RepoID == 0 {
+		var repo model.Repository
+		repo, err = CreateRepository()
+		if err != nil {
+			return
+		}
+		m.RepoID = repo.ID
+	}
 
 	return
 }

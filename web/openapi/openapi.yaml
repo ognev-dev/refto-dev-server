@@ -269,3 +269,54 @@ paths:
             application/json:
               schema:
                 $ref: './repositories.yaml#CreateRepositoryResp'
+
+  /user/repositories/:
+    post:
+      tags:
+        - Repositories
+        - User
+      summary: Get repositories of current user
+      operationId: getUserRepositories
+      parameters:
+        - $ref: './query-params.yaml#Page'
+        - $ref: './query-params.yaml#Limit'
+        - name: path
+          in: query
+          description: Filter by path
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: Filter by name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Repositories of current user
+          content:
+            application/json:
+              schema:
+                $ref: './repositories.yaml#FilterRepositoriesResp'
+
+  /repositories/{id}/secret/:
+    parameters:
+      - name: id
+        in: path
+        description: ID of repository
+        required: true
+        schema:
+          type: integer
+          format: int64
+    post:
+      tags:
+        - Repositories
+      summary: Get new secret
+      operationId: repositoryGetNewSecret
+      responses:
+        '200':
+          description: Repository's secret
+          content:
+            application/json:
+              schema:
+                $ref: './repositories.yaml#CreateRepositoryResp'

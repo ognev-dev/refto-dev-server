@@ -26,7 +26,6 @@ CREATE TABLE user_repositories
     user_id BIGINT NOT NULL REFERENCES users (id)
 );
 
-
 ALTER TABLE entities
     ADD COLUMN repo_id BIGINT REFERENCES repositories (id);
 
