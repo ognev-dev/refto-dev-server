@@ -269,9 +269,35 @@ paths:
             application/json:
               schema:
                 $ref: './repositories.yaml#CreateRepositoryResp'
+    get:
+      tags:
+        - Repositories
+      summary: Get repositories
+      operationId: getRepositories
+      parameters:
+        - $ref: './query-params.yaml#Page'
+        - $ref: './query-params.yaml#Limit'
+        - name: path
+          in: query
+          description: Filter by path
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: Filter by name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Repositories
+          content:
+            application/json:
+              schema:
+                $ref: './repositories.yaml#FilterRepositoriesResp'
 
   /user/repositories/:
-    post:
+    get:
       tags:
         - Repositories
         - User

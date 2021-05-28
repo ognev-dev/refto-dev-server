@@ -105,3 +105,32 @@ func TestGetUserRepositories(t *testing.T) {
 		t.Fatalf("invalid element in response: %v", el)
 	}
 }
+
+func TestGetRepositories(t *testing.T) {
+	Authorise(t)
+
+	_, err := factory.CreateRepository(model.Repository{Type: model.RepositoryTypeHidden})
+	assert.NotError(t, err)
+	_, err = factory.CreateRepository(model.Repository{Type: model.RepositoryTypePrivate})
+	assert.NotError(t, err)
+	m1, err := factory.CreateRepository(model.Repository{Type: model.RepositoryTypeGlobal})
+	assert.NotError(t, err)
+	m2, err := factory.CreateRepository(model.Repository{Type: model.RepositoryTypePublic})
+	assert.NotError(t, err)
+
+	var req request.FilterRepositories
+	var resp response.FilterRepositories
+	TestFilter(t, "/repositories/", req, &resp)
+	assert.Equals(t, 2, resp.Count)
+
+	for _, el := range resp.Data {
+		if el.ID == m1.ID {
+			continue
+		}
+		if el.ID == m2.ID {
+			continue
+		}
+
+		t.Fatalf("invalid element in response: %v", el)
+	}
+}
