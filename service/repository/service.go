@@ -119,15 +119,34 @@ func Update(elem *model.Repository) (err error) {
 	return
 }
 
-//func Delete(id int64) (err error) {
-//	_, err = database.ORM().Model(&model.CollectionEntity{}).Where("collection_id = ?", id).Delete()
-//	if err != nil {
-//		return
-//	}
-//	_, err = database.ORM().Model(&model.Collection{}).Where("id = ?", id).Delete()
-//
-//	return
-//}
+func Delete(id int64) (err error) {
+	// TODO this can take some time if DB is loaded and busy
+	// 	make it async or scheduled
+
+	_, err = database.ORM().
+		Exec("DELETE FROM collection_entities WHERE entity_id IN (SELECT id FROM entities WHERE repo_id = ?)", id)
+	if err != nil {
+		return
+	}
+	_, err = database.ORM().
+		Exec("DELETE FROM entity_topics WHERE entity_id IN (SELECT id FROM entities WHERE repo_id = ?)", id)
+	if err != nil {
+		return
+	}
+
+	_, err = database.ORM().
+		Exec("DELETE FROM entities WHERE repo_id = ?", id)
+	if err != nil {
+		return
+	}
+
+	_, err = database.ORM().
+		Model(&model.Repository{}).
+		Where("id = ?", id).
+		Delete()
+
+	return
+}
 
 func FindByID(id int64) (m model.Repository, err error) {
 	err = database.ORM().
@@ -137,17 +156,3 @@ func FindByID(id int64) (m model.Repository, err error) {
 
 	return
 }
-
-//
-//func FindByToken(token string) (m model.Collection, err error) {
-//	err = database.ORM().
-//		Model(&m).
-//		Where("token = ?", token).
-//		First()
-//
-//	if err == pg.ErrNoRows {
-//		err = errors.New("collection not found")
-//	}
-//
-//	return
-//}

@@ -58,11 +58,18 @@ func Update(elem *model.Collection) (err error) {
 }
 
 func Delete(id int64) (err error) {
-	_, err = database.ORM().Model(&model.CollectionEntity{}).Where("collection_id = ?", id).Delete()
+	_, err = database.ORM().
+		Model(&model.CollectionEntity{}).
+		Where("collection_id = ?", id).
+		Delete()
 	if err != nil {
 		return
 	}
-	_, err = database.ORM().Model(&model.Collection{}).Where("id = ?", id).Delete()
+
+	_, err = database.ORM().
+		Model(&model.Collection{}).
+		Where("id = ?", id).
+		Delete()
 
 	return
 }

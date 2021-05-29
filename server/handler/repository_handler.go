@@ -126,15 +126,15 @@ func GetNewRepositorySecret(c *gin.Context) {
 }
 
 func DeleteRepository(c *gin.Context) {
-	//if !validRequest(c, request.DeleteRepository{}) {
-	//	return
-	//}
-	//
-	//err := collection.Delete(request.Repository(c).ID)
-	//if err != nil {
-	//	Abort(c, err)
-	//	return
-	//}
+	if !validRequest(c, request.DeleteRepository{}) {
+		return
+	}
+
+	err := repository.Delete(request.Repository(c).ID)
+	if err != nil {
+		Abort(c, err)
+		return
+	}
 
 	c.JSON(http.StatusOK, response.OK("Repository deleted"))
 }

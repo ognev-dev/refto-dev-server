@@ -230,3 +230,29 @@ func TestUpdateRepository(t *testing.T) {
 		"type":        *req.Type,
 	})
 }
+
+func TestDeleteRepository(t *testing.T) {
+	Authorise(t)
+
+	repo, err := factory.CreateRepository(model.Repository{UserID: AuthUser.ID})
+	assert.NotError(t, err)
+	entity, err := factory.CreateEntity(model.Entity{RepoID: repo.ID})
+	assert.NotError(t, err)
+	_, err = factory.CreateCollectionEntity(model.CollectionEntity{
+		EntityID: entity.ID,
+	})
+	assert.NotError(t, err)
+
+	var resp response.Success
+	TestDelete(t, "repositories/"+fmt.Sprintf("%d", repo.ID), &resp)
+
+	assert.DatabaseMissing(t, "collection_entities", util.M{
+		"entity_id": entity.ID,
+	})
+	assert.DatabaseMissing(t, "entities", util.M{
+		"id": entity.ID,
+	})
+	assert.DatabaseMissing(t, "repositories", util.M{
+		"id": repo.ID,
+	})
+}

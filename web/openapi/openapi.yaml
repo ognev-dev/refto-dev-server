@@ -218,6 +218,7 @@ paths:
       responses:
         '200':
           $ref: './responses.yaml#SuccessResponse'
+
   /collections/{collectionID}/entities/{entityID}/:
     parameters:
       - name: collectionID
@@ -382,3 +383,11 @@ paths:
             application/json:
               schema:
                 $ref: './repositories.yaml#Repository'
+    delete:
+      tags:
+        - Repositories
+      summary: Delete repository
+      operationId: deleteRepository
+      responses:
+        '200':
+          $ref: './responses.yaml#SuccessResponse'
