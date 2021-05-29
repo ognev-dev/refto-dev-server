@@ -18,6 +18,9 @@ func MakeRepository(opt ...model.Repository) (m model.Repository, err error) {
 	if m.Description == "" {
 		m.Description = fake.Name()
 	}
+	if m.User != nil {
+		m.UserID = m.User.ID
+	}
 	if m.UserID == 0 {
 		var u model.User
 		u, err = CreateUser()
@@ -25,6 +28,7 @@ func MakeRepository(opt ...model.Repository) (m model.Repository, err error) {
 			return
 		}
 		m.UserID = u.ID
+		m.User = &u
 	}
 	if m.Path == "" {
 		m.Path = util.RandomString() + "/" + util.RandomString()

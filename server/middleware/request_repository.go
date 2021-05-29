@@ -13,13 +13,14 @@ func RequestRepository(idParam string) gin.HandlerFunc {
 		var elem model.Repository
 		var err error
 		if idParam == "path" {
-			elem, err = repository.FindByPath(c.Param("path"))
+			// path param is composite of account and name, so little trick here
+			path := c.Param("account") + "/" + c.Param("name")
+			elem, err = repository.FindByPath(path)
 		} else {
 			var id int64
 			if !handler.BindID(c, &id, idParam) {
 				return
 			}
-
 			elem, err = repository.FindByID(id)
 		}
 		if err != nil {

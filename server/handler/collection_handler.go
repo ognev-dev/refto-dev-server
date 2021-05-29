@@ -29,13 +29,7 @@ func GetCollections(c *gin.Context) {
 }
 
 func GetCollectionByToken(c *gin.Context) {
-	col, err := collection.FindByToken(c.Param("token"))
-	if err != nil {
-		Abort(c, err)
-		return
-	}
-
-	c.JSON(http.StatusOK, col)
+	c.JSON(http.StatusOK, request.Collection(c))
 }
 
 func CreateCollection(c *gin.Context) {

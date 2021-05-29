@@ -33,10 +33,11 @@ func Register(r *gin.Engine) {
 
 	// public routes
 	addRoutes(api,
-		entityRoutes,
-		topicRoutes,
-		webHookRoutes,
-		userRoutes,
+		publicEntityRoutes,
+		publicTopicRoutes,
+		publicWebHookRoutes,
+		publicUserRoutes,
+		publicRepositoryRoutes,
 	)
 
 	// auth routes
@@ -45,6 +46,7 @@ func Register(r *gin.Engine) {
 		middleware.RequestAuth,
 	)
 	addRoutes(authApi,
+		userRoutes,
 		collectionRoutes,
 		repositoryRoutes,
 	)

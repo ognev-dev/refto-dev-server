@@ -10,10 +10,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/refto/server/server/request"
 	"github.com/refto/server/server/response"
-	"github.com/refto/server/service/collection"
 )
 
-func GetRepositories(c *gin.Context) {
+func GetPublicRepositories(c *gin.Context) {
 	var req request.FilterRepositories
 	if !bindQuery(c, &req) {
 		return
@@ -54,14 +53,15 @@ func GetUserRepositories(c *gin.Context) {
 	})
 }
 
-func GetRepositoryByToken(c *gin.Context) {
-	col, err := collection.FindByToken(c.Param("token"))
-	if err != nil {
-		Abort(c, err)
+func GetRepositoryByPath(c *gin.Context) {
+	repo := request.Repository(c)
+
+	if repo.Type == model.RepositoryTypePrivate && !request.IsSameUser(c, repo.UserID) {
+		Abort(c, repository.ErrRepoNotFoundByPath)
 		return
 	}
 
-	c.JSON(http.StatusOK, col)
+	c.JSON(http.StatusOK, repo)
 }
 
 func CreateRepository(c *gin.Context) {

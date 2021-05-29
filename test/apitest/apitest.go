@@ -259,6 +259,18 @@ func TestGet(t *testing.T, path string, response interface{}) *httptest.Response
 	return GET(t, req)
 }
 
+// TestGet404 makes a "get" request that expects 404 status code
+func TestGet404(t *testing.T, path string) (resp response.Error, rec *httptest.ResponseRecorder) {
+	req := Request{
+		Path:         path,
+		BindResponse: &resp,
+		AssertStatus: http.StatusNotFound,
+	}
+
+	rec = GET(t, req)
+	return
+}
+
 // TestFilter makes "get" request with query params
 func TestFilter(t *testing.T, path string, request, response interface{}) *httptest.ResponseRecorder {
 	query, err := util.StructToQueryString(request)

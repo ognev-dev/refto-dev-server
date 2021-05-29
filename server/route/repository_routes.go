@@ -6,9 +6,17 @@ import (
 	"github.com/refto/server/server/middleware"
 )
 
+func publicRepositoryRoutes(r *gin.RouterGroup) {
+	r.Group("repositories/").
+		GET("/", handler.GetPublicRepositories)
+
+	r.Group("repositories/:account/:name").
+		Use(middleware.RequestRepository("path")).
+		GET("/", handler.GetRepositoryByPath)
+}
+
 func repositoryRoutes(r *gin.RouterGroup) {
 	r.Group("repositories/").
-		GET("/", handler.GetRepositories).
 		POST("/", handler.CreateRepository)
 
 	r.Group("repositories/:id/").
@@ -16,9 +24,5 @@ func repositoryRoutes(r *gin.RouterGroup) {
 		POST("/secret/", handler.GetNewRepositorySecret)
 	//PUT("/", handler.UpdateCollection).
 	//DELETE("/", handler.DeleteCollection)
-
-	//r.Group("repositories/:token/").
-	//Use(middleware.RequestRepository("token")).
-	//GET("/", handler.GetCollectionByToken)
 
 }

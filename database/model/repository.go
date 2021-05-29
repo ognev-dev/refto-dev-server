@@ -12,6 +12,7 @@ import (
 type Repository struct {
 	ID     int64 `json:"id"`
 	UserID int64 `json:"-"`
+	User   *User `json:"-"`
 
 	// Path is just a "{user}/{repo}" on GitHub
 	Path string `json:"path"`

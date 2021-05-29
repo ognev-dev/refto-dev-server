@@ -24,6 +24,16 @@ func HasUser(c *gin.Context) (ok bool) {
 	return
 }
 
+func IsSameUser(c *gin.Context, userID int64) bool {
+	if !HasUser(c) {
+		return false
+	}
+	if User(c).ID == userID {
+		return true
+	}
+	return false
+}
+
 func User(c *gin.Context) model.User {
 	u := c.MustGet(ctxUserKey)
 	return u.(model.User)

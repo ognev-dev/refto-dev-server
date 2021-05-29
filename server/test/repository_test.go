@@ -134,3 +134,44 @@ func TestGetRepositories(t *testing.T) {
 		t.Fatalf("invalid element in response: %v", el)
 	}
 }
+
+func TestGetRepositoryByPath_PublicAndHidden(t *testing.T) {
+	m, err := factory.CreateRepository(model.Repository{Type: model.RepositoryTypePublic})
+	assert.NotError(t, err)
+
+	var resp model.Repository
+	TestGet(t, "repositories/"+m.Path, &resp)
+	assert.Equals(t, m.ID, resp.ID)
+	assert.Equals(t, m.Path, resp.Path)
+	assert.Equals(t, m.Name, resp.Name)
+	assert.Equals(t, m.Description, resp.Description)
+	assert.Equals(t, m.Type, resp.Type)
+	assert.Equals(t, m.Confirmed, resp.Confirmed)
+
+	m, err = factory.CreateRepository(model.Repository{Type: model.RepositoryTypeHidden})
+	assert.NotError(t, err)
+
+	TestGet(t, "repositories/"+m.Path, &resp)
+	assert.Equals(t, m.ID, resp.ID)
+	assert.Equals(t, m.Path, resp.Path)
+	assert.Equals(t, m.Name, resp.Name)
+	assert.Equals(t, m.Description, resp.Description)
+	assert.Equals(t, m.Type, resp.Type)
+	assert.Equals(t, m.Confirmed, resp.Confirmed)
+}
+
+func TestGetRepositoryByPath_Private(t *testing.T) {
+	m, err := factory.CreateRepository(model.Repository{Type: model.RepositoryTypePrivate})
+	assert.NotError(t, err)
+
+	TestGet404(t, "repositories/"+m.Path)
+
+	AuthoriseAs(t, m.User)
+
+	var resp model.Repository
+	TestGet(t, "repositories/"+m.Path, &resp)
+
+	assert.Equals(t, resp.ID, m.ID)
+	assert.Equals(t, resp.Type, model.RepositoryTypePrivate)
+
+}
