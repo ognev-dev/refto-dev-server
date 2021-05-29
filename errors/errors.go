@@ -13,6 +13,7 @@ const (
 	CodeNotFound      = http.StatusNotFound
 	CodeBadRequest    = http.StatusBadRequest
 	CodeUnauthorized  = http.StatusUnauthorized
+	CodeForbidden     = http.StatusForbidden
 )
 
 type Error struct {
@@ -115,4 +116,8 @@ func BadRequest(message string) error {
 
 func Unauthorized(message string) error {
 	return New(CodeUnauthorized, message)
+}
+
+func Forbidden(message string) error {
+	return New(CodeForbidden, message)
 }

@@ -2,7 +2,7 @@ openapi: "3.0.0"
 info:
   version: "1"
   title: refto.dev API
-  description: Thanks to <a href="https://swagger.io/docs/specification/about/" target="_blank">OpenAPI</a>
+  description: <a href="https://refto.dev/" target="_blank">refto.dev</a>
 #  termsOfService: http://swagger.io/terms/
 #  contact:
 #    name: Swagger API Team
@@ -346,3 +346,39 @@ paths:
             application/json:
               schema:
                 $ref: './repositories.yaml#CreateRepositoryResp'
+
+  /repositories/{id}/:
+    parameters:
+      - name: id
+        in: path
+        description: ID of repository
+        required: true
+        schema:
+          type: integer
+          format: int64
+    get:
+      tags:
+        - Repositories
+      summary: Get repository by ID
+      operationId: getRepository
+      responses:
+        '200':
+          description: Repository
+          content:
+            application/json:
+              schema:
+                $ref: './repositories.yaml#Repository'
+    put:
+      tags:
+        - Repositories
+      summary: Update repository
+      operationId: updateRepository
+      requestBody:
+        $ref: './repositories.yaml#UpdateRepositoryReq'
+      responses:
+        '200':
+          description: Repository
+          content:
+            application/json:
+              schema:
+                $ref: './repositories.yaml#Repository'

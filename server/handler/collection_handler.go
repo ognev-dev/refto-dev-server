@@ -15,7 +15,7 @@ func GetCollections(c *gin.Context) {
 		return
 	}
 
-	req.UserID = request.User(c).ID
+	req.UserID = request.AuthUser(c).ID
 	data, count, err := collection.Filter(req)
 	if err != nil {
 		Abort(c, err)

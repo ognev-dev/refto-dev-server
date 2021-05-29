@@ -10,7 +10,6 @@ import (
 )
 
 var (
-	errRepoUpdateWrongUser = errors.Unprocessable("you can't simply update repository that is not created by you")
 	errRepoDeleteWrongUser = errors.Unprocessable("you can't simply delete repository that is not created by you")
 )
 
@@ -32,15 +31,16 @@ type FilterRepositories struct {
 	Name string `json:"name" form:"name"`
 
 	// internal only
-	Types  []model.RepositoryType `json:"-" form:"-"`
-	UserID int64                  `json:"-" form:"-"`
+	Types     []model.RepoType `json:"-" form:"-"`
+	UserID    int64            `json:"-" form:"-"`
+	Confirmed bool             `json:"-" form:"-"`
 }
 
 type CreateRepository struct {
-	Path        string               `json:"path"`
-	Name        string               `json:"name"`
-	Description string               `json:"description"`
-	Type        model.RepositoryType `json:"type"`
+	Path        string         `json:"path"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Type        model.RepoType `json:"type"`
 }
 
 func (r *CreateRepository) Validate(*gin.Context) (err error) {
@@ -60,7 +60,7 @@ func (r *CreateRepository) Validate(*gin.Context) (err error) {
 
 func (r *CreateRepository) ToModel(c *gin.Context) (m model.Repository) {
 	return model.Repository{
-		UserID:      User(c).ID,
+		UserID:      AuthUser(c).ID,
 		Path:        r.Path,
 		Name:        r.Name,
 		Description: r.Description,
@@ -69,46 +69,51 @@ func (r *CreateRepository) ToModel(c *gin.Context) (m model.Repository) {
 }
 
 type UpdateRepository struct {
-	Name        string               `json:"name"`
-	Description string               `json:"description"`
-	Type        model.RepositoryType `json:"type"`
+	Name        *string         `json:"name"`
+	Description *string         `json:"description"`
+	Type        *model.RepoType `json:"type"`
 }
 
-func (r UpdateRepository) Validate(c *gin.Context) (err error) {
-	if User(c).ID != Repository(c).UserID {
-		return errRepoUpdateWrongUser
+func (r *UpdateRepository) Validate(c *gin.Context) (err error) {
+	if InvalidUser(c, Repository(c).UserID) {
+		return
 	}
 
 	errs := errors.NewInput()
-
-	if r.Type != "" && !r.Type.IsValid() {
-		errs["type"] = fmt.Sprintf("invalid type: '%s'", r.Type)
+	if r.Name != nil {
+		errs.AddIf(util.IsEmptyString(*r.Name), "name", "Name cannot be empty")
+	}
+	if r.Description != nil {
+		errs.AddIf(util.IsEmptyString(*r.Description), "description", "Description cannot be empty")
+	}
+	if r.Type != nil {
+		errs.AddIf(util.IsEmptyString(r.Type.String()), "type", "Type cannot be empty")
+		errs.AddIf(!r.Type.IsValid(), "type", fmt.Sprintf("Invalid type: '%s'", r.Type))
 	}
 
-	if len(errs) > 0 {
+	if errs.Has() {
 		return errs
 	}
-
 	return nil
 }
 
 func (r UpdateRepository) ToModel(m *model.Repository) {
-	if r.Name != "" {
-		m.Name = r.Name
+	if r.Name != nil {
+		m.Name = *r.Name
 	}
-	if r.Description != "" {
-		m.Name = r.Description
+	if r.Description != nil {
+		m.Name = *r.Description
 	}
-	if r.Type != "" {
-		m.Type = r.Type
+	if r.Type != nil {
+		m.Type = *r.Type
 	}
 }
 
 type DeleteRepository struct{}
 
-func (r DeleteRepository) Validate(c *gin.Context) error {
-	if User(c).ID != Repository(c).UserID {
-		return errRepoDeleteWrongUser
+func (r DeleteRepository) Validate(c *gin.Context) (err error) {
+	if InvalidUser(c, Repository(c).UserID) {
+		return
 	}
 
 	return nil

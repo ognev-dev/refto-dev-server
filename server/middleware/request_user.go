@@ -72,6 +72,6 @@ func RequestUser(c *gin.Context) {
 	}
 
 	c.Set(authSuccessKey, true)
-	request.SetUser(c, *userEl)
+	request.SetAuthUser(c, *userEl)
 	c.Next()
 }

@@ -34,7 +34,7 @@ func MakeRepository(opt ...model.Repository) (m model.Repository, err error) {
 		m.Path = util.RandomString() + "/" + util.RandomString()
 	}
 	if m.Type == "" {
-		m.Type = model.RepositoryType(fake.RandString(model.RepositoryTypesList))
+		m.Type = model.RepoType(fake.RandString(model.RepositoryTypesList))
 	}
 	if m.Confirmed == nil {
 		confirmed := util.RandomBool()

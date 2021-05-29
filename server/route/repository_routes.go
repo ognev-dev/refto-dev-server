@@ -21,8 +21,8 @@ func repositoryRoutes(r *gin.RouterGroup) {
 
 	r.Group("repositories/:id/").
 		Use(middleware.RequestRepository("id")).
-		POST("/secret/", handler.GetNewRepositorySecret)
-	//PUT("/", handler.UpdateCollection).
+		POST("/secret/", handler.GetNewRepositorySecret).
+		PUT("/", handler.UpdateRepository)
 	//DELETE("/", handler.DeleteCollection)
 
 }

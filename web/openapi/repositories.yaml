@@ -23,7 +23,7 @@ Repository:
     description:
       type: string
     type:
-      $ref: "./#Type"
+      $ref: "#Type"
     confirmed:
       type: boolean
     created_at:
@@ -53,7 +53,25 @@ CreateRepositoryReq:
             example: A collection of awesome creations that is useful to software developers
             type: string
           type:
-            $ref: "./#Type"
+            $ref: "#Type"
+
+UpdateRepositoryReq:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          name:
+            description: Name of repository
+            type: string
+            example: data
+          description:
+            description: Description of repository
+            example: A collection of awesome creations that is useful to software developers
+            type: string
+          type:
+            $ref: "#Type"
 
 CreateRepositoryResp:
   type: object

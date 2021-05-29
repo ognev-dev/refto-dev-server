@@ -26,7 +26,7 @@ func TestCreateRepository(t *testing.T) {
 		Path:        util.RandomString() + "/" + util.RandomString(),
 		Name:        gofakeit.Name(),
 		Description: gofakeit.Name(),
-		Type:        model.RepositoryTypeGlobal,
+		Type:        model.RepoTypeGlobal,
 	}
 
 	var resp response.CreateRepository
@@ -55,7 +55,7 @@ func TestCreateRepository_Existing(t *testing.T) {
 		Path:        m.Path,
 		Name:        gofakeit.Name(),
 		Description: gofakeit.Name(),
-		Type:        model.RepositoryTypeGlobal,
+		Type:        model.RepoTypeGlobal,
 	}
 	resp, _ := TestCreate422(t, "repositories", req)
 	assert.Equals(t, resp.Error, repository.ErrRepoAlreadyClaimed.Error())
@@ -109,13 +109,13 @@ func TestGetUserRepositories(t *testing.T) {
 func TestGetRepositories(t *testing.T) {
 	Authorise(t)
 
-	_, err := factory.CreateRepository(model.Repository{Type: model.RepositoryTypeHidden})
+	_, err := factory.CreateRepository(model.Repository{Type: model.RepoTypeHidden})
 	assert.NotError(t, err)
-	_, err = factory.CreateRepository(model.Repository{Type: model.RepositoryTypePrivate})
+	_, err = factory.CreateRepository(model.Repository{Type: model.RepoTypePrivate})
 	assert.NotError(t, err)
-	m1, err := factory.CreateRepository(model.Repository{Type: model.RepositoryTypeGlobal})
+	m1, err := factory.CreateRepository(model.Repository{Type: model.RepoTypeGlobal})
 	assert.NotError(t, err)
-	m2, err := factory.CreateRepository(model.Repository{Type: model.RepositoryTypePublic})
+	m2, err := factory.CreateRepository(model.Repository{Type: model.RepoTypePublic})
 	assert.NotError(t, err)
 
 	var req request.FilterRepositories
@@ -136,7 +136,7 @@ func TestGetRepositories(t *testing.T) {
 }
 
 func TestGetRepositoryByPath_PublicAndHidden(t *testing.T) {
-	m, err := factory.CreateRepository(model.Repository{Type: model.RepositoryTypePublic})
+	m, err := factory.CreateRepository(model.Repository{Type: model.RepoTypePublic})
 	assert.NotError(t, err)
 
 	var resp model.Repository
@@ -148,7 +148,7 @@ func TestGetRepositoryByPath_PublicAndHidden(t *testing.T) {
 	assert.Equals(t, m.Type, resp.Type)
 	assert.Equals(t, m.Confirmed, resp.Confirmed)
 
-	m, err = factory.CreateRepository(model.Repository{Type: model.RepositoryTypeHidden})
+	m, err = factory.CreateRepository(model.Repository{Type: model.RepoTypeHidden})
 	assert.NotError(t, err)
 
 	TestGet(t, "repositories/"+m.Path, &resp)
@@ -161,7 +161,7 @@ func TestGetRepositoryByPath_PublicAndHidden(t *testing.T) {
 }
 
 func TestGetRepositoryByPath_Private(t *testing.T) {
-	m, err := factory.CreateRepository(model.Repository{Type: model.RepositoryTypePrivate})
+	m, err := factory.CreateRepository(model.Repository{Type: model.RepoTypePrivate})
 	assert.NotError(t, err)
 
 	TestGet404(t, "repositories/"+m.Path)
@@ -172,6 +172,29 @@ func TestGetRepositoryByPath_Private(t *testing.T) {
 	TestGet(t, "repositories/"+m.Path, &resp)
 
 	assert.Equals(t, resp.ID, m.ID)
-	assert.Equals(t, resp.Type, model.RepositoryTypePrivate)
+	assert.Equals(t, resp.Type, model.RepoTypePrivate)
 
+}
+
+func TestUpdateRepository(t *testing.T) {
+	Authorise(t)
+
+	m, err := factory.CreateRepository(model.Repository{
+		Type:   model.RepoTypePublic,
+		UserID: AuthUser.ID,
+	})
+	assert.NotError(t, err)
+
+	repoType := model.RepoTypeHidden
+	req := request.UpdateRepository{
+		Name:        util.NewString(util.RandomString(10)),
+		Description: util.NewString(util.RandomString(10)),
+		Type:        &repoType,
+	}
+
+	var resp model.Repository
+	TestUpdate(t, "repositories/"+fmt.Sprintf("%d", m.ID), req, &resp)
+
+	assert.Equals(t, resp.ID, m.ID)
+	assert.Equals(t, resp.Type, model.RepoTypeHidden)
 }

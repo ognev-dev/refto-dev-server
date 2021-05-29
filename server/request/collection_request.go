@@ -48,7 +48,7 @@ func (r *CreateCollection) ToModel(c *gin.Context) (m model.Collection) {
 	return model.Collection{
 		Name:    r.Name,
 		Private: r.Private,
-		UserID:  User(c).ID,
+		UserID:  AuthUser(c).ID,
 	}
 }
 
@@ -58,7 +58,7 @@ type UpdateCollection struct {
 }
 
 func (r UpdateCollection) Validate(c *gin.Context) (err error) {
-	if User(c).ID != Collection(c).UserID {
+	if AuthUser(c).ID != Collection(c).UserID {
 		err = errors.Unprocessable("invalid user")
 		return
 	}
@@ -80,7 +80,7 @@ func (r UpdateCollection) ToModel(m *model.Collection) {
 type DeleteCollection struct{}
 
 func (r DeleteCollection) Validate(c *gin.Context) (err error) {
-	if User(c).ID != Collection(c).UserID {
+	if AuthUser(c).ID != Collection(c).UserID {
 		err = errors.Unprocessable("you can't simply delete collection that is not created by you")
 		return
 	}
@@ -91,7 +91,7 @@ func (r DeleteCollection) Validate(c *gin.Context) (err error) {
 type AddEntityToCollection struct{}
 
 func (r AddEntityToCollection) Validate(c *gin.Context) (err error) {
-	if User(c).ID != Collection(c).UserID {
+	if AuthUser(c).ID != Collection(c).UserID {
 		err = errors.Unprocessable("unable to add entity to collection: Ownership violation detected. ")
 		return
 	}
@@ -102,7 +102,7 @@ func (r AddEntityToCollection) Validate(c *gin.Context) (err error) {
 type RemoveEntityFromCollection struct{}
 
 func (r RemoveEntityFromCollection) Validate(c *gin.Context) (err error) {
-	if User(c).ID != Collection(c).UserID {
+	if AuthUser(c).ID != Collection(c).UserID {
 		err = errors.Unprocessable("unable to remove entity from collection: Owner of collection will not be happy")
 		return
 	}

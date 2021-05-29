@@ -112,12 +112,11 @@ func FindByPath(path string) (m model.Repository, err error) {
 	return
 }
 
-//
-//func Update(elem *model.Collection) (err error) {
-//	err = database.ORM().Update(elem)
-//	return
-//}
-//
+func Update(elem *model.Repository) (err error) {
+	err = database.ORM().Update(elem)
+	return
+}
+
 //func Delete(id int64) (err error) {
 //	_, err = database.ORM().Model(&model.CollectionEntity{}).Where("collection_id = ?", id).Delete()
 //	if err != nil {

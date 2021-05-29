@@ -27,7 +27,7 @@ type Repository struct {
 	// Secret is hashed using bcrypt and available only once
 	Secret string `json:"-"`
 
-	Type RepositoryType `json:"type"`
+	Type RepoType `json:"type"`
 
 	// Confirmed is a flag to mark that user is confirmed access to repo
 	// Confirmed is set to true on first successful import
@@ -52,44 +52,46 @@ func (m *Repository) BeforeUpdate(ctx context.Context) (context.Context, error) 
 	return ctx, nil
 }
 
-type RepositoryType string
+type RepoType string
 
 const (
-	// RepositoryTypePrivate
+	// RepoTypePrivate
 	// Private repos is available only to user who added it
-	RepositoryTypePrivate RepositoryType = "private"
+	RepoTypePrivate RepoType = "private"
 
-	// RepositoryTypeGlobal
+	// RepoTypeGlobal
 	// Data from global repos is available by default at global level
-	RepositoryTypeGlobal RepositoryType = "global"
+	// (it's kind of "trusted" or "featured")
+	// This type cannot be selected by user
+	RepoTypeGlobal RepoType = "global"
 
-	// RepositoryTypePublic
+	// RepoTypePublic
 	// Public repos will be listed in repos page and in search filters
-	RepositoryTypePublic RepositoryType = "public"
+	RepoTypePublic RepoType = "public"
 
-	// RepositoryTypeHidden
+	// RepoTypeHidden
 	// Hidden repos will NOT be listed in repos page and in search filters
 	// but can be viewed using link
-	RepositoryTypeHidden RepositoryType = "hidden"
+	RepoTypeHidden RepoType = "hidden"
 )
 
 var RepositoryTypesList = []string{
 	"private", "global", "public", "hidden",
 }
 
-func (t RepositoryType) IsValid() bool {
+func (t RepoType) IsValid() bool {
 	switch t {
 	case
-		RepositoryTypePrivate,
-		RepositoryTypeGlobal,
-		RepositoryTypeHidden,
-		RepositoryTypePublic:
+		RepoTypePrivate,
+		RepoTypeGlobal,
+		RepoTypeHidden,
+		RepoTypePublic:
 		return true
 	}
 
 	return false
 }
 
-func (t RepositoryType) String() string {
+func (t RepoType) String() string {
 	return string(t)
 }

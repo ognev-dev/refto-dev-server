@@ -18,9 +18,9 @@ func GetPublicRepositories(c *gin.Context) {
 		return
 	}
 
-	req.Types = []model.RepositoryType{
-		model.RepositoryTypeGlobal,
-		model.RepositoryTypePublic,
+	req.Types = []model.RepoType{
+		model.RepoTypeGlobal,
+		model.RepoTypePublic,
 	}
 	data, count, err := repository.Filter(req)
 	if err != nil {
@@ -40,7 +40,7 @@ func GetUserRepositories(c *gin.Context) {
 		return
 	}
 
-	req.UserID = request.User(c).ID
+	req.UserID = request.AuthUser(c).ID
 	data, count, err := repository.Filter(req)
 	if err != nil {
 		Abort(c, err)
@@ -56,7 +56,7 @@ func GetUserRepositories(c *gin.Context) {
 func GetRepositoryByPath(c *gin.Context) {
 	repo := request.Repository(c)
 
-	if repo.Type == model.RepositoryTypePrivate && !request.IsSameUser(c, repo.UserID) {
+	if repo.Type == model.RepoTypePrivate && !request.AuthUserOf(c, repo.UserID) {
 		Abort(c, repository.ErrRepoNotFoundByPath)
 		return
 	}
@@ -84,8 +84,25 @@ func CreateRepository(c *gin.Context) {
 	c.JSON(http.StatusCreated, resp)
 }
 
+func UpdateRepository(c *gin.Context) {
+	var req request.UpdateRepository
+	if !bindJSON(c, &req) {
+		return
+	}
+
+	m := request.Repository(c)
+	req.ToModel(&m)
+	err := repository.Update(&m)
+	if err != nil {
+		Abort(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, m)
+}
+
 func GetNewRepositorySecret(c *gin.Context) {
-	userID := request.User(c).ID
+	userID := request.AuthUser(c).ID
 	repo := request.Repository(c)
 	if userID != repo.UserID {
 		Abort(c, repository.ErrOwnershipViolation)
@@ -103,23 +120,6 @@ func GetNewRepositorySecret(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, resp)
-}
-
-func UpdateRepository(c *gin.Context) {
-	//var req request.UpdateRepository
-	//if !bindJSON(c, &req) {
-	//	return
-	//}
-	//
-	//elem := request.Repository(c)
-	//req.ToModel(&elem)
-	//err := collection.Update(&elem)
-	//if err != nil {
-	//	Abort(c, err)
-	//	return
-	//}
-
-	//c.JSON(http.StatusOK, elem)
 }
 
 func DeleteRepository(c *gin.Context) {
