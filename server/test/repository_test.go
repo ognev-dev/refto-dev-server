@@ -26,7 +26,7 @@ func TestCreateRepository(t *testing.T) {
 		Path:        util.RandomString() + "/" + util.RandomString(),
 		Name:        gofakeit.Name(),
 		Description: gofakeit.Name(),
-		Type:        model.RepoTypeGlobal,
+		Type:        model.RepoTypePublic,
 	}
 
 	var resp response.CreateRepository
@@ -106,16 +106,39 @@ func TestGetUserRepositories(t *testing.T) {
 	}
 }
 
-func TestGetRepositories(t *testing.T) {
+func TestGetPublicRepositories(t *testing.T) {
 	Authorise(t)
 
-	_, err := factory.CreateRepository(model.Repository{Type: model.RepoTypeHidden})
+	// hidden repo should not be in response
+	_, err := factory.CreateRepository(model.Repository{
+		Type:      model.RepoTypeHidden,
+		Confirmed: true,
+	})
 	assert.NotError(t, err)
-	_, err = factory.CreateRepository(model.Repository{Type: model.RepoTypePrivate})
+
+	// private repo should not be in response
+	_, err = factory.CreateRepository(model.Repository{
+		Type:      model.RepoTypePrivate,
+		Confirmed: true,
+	})
 	assert.NotError(t, err)
-	m1, err := factory.CreateRepository(model.Repository{Type: model.RepoTypeGlobal})
+
+	// public but not confirmed should not be in response
+	_, err = factory.CreateRepository(model.Repository{
+		Type:      model.RepoTypePublic,
+		Confirmed: false,
+	})
 	assert.NotError(t, err)
-	m2, err := factory.CreateRepository(model.Repository{Type: model.RepoTypePublic})
+
+	m1, err := factory.CreateRepository(model.Repository{
+		Type:      model.RepoTypeGlobal,
+		Confirmed: true,
+	})
+	assert.NotError(t, err)
+	m2, err := factory.CreateRepository(model.Repository{
+		Type:      model.RepoTypePublic,
+		Confirmed: true,
+	})
 	assert.NotError(t, err)
 
 	var req request.FilterRepositories
@@ -197,4 +220,13 @@ func TestUpdateRepository(t *testing.T) {
 
 	assert.Equals(t, resp.ID, m.ID)
 	assert.Equals(t, resp.Type, model.RepoTypeHidden)
+
+	assert.DatabaseHas(t, "repositories", util.M{
+		"id":          m.ID,
+		"path":        m.Path,
+		"user_id":     m.UserID,
+		"name":        *req.Name,
+		"description": *req.Description,
+		"type":        *req.Type,
+	})
 }

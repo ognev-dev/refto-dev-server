@@ -296,9 +296,7 @@ func TestFilter(t *testing.T, path string, request, response interface{}) *httpt
 }
 
 func Authorise(t *testing.T) *model.User {
-	if AuthUser != nil && authToken != "" {
-		return AuthUser
-	}
+	Logout()
 	user, err := factory.CreateUser()
 	assert.NotError(t, err)
 	AuthoriseAs(t, &user)
@@ -316,11 +314,6 @@ func AuthoriseAs(t *testing.T, user *model.User) {
 
 	AuthUser = user
 	authToken = authtoken.Sign(token)
-}
-
-func AuthoriseNew(t *testing.T) {
-	Logout()
-	Authorise(t)
 }
 
 func Logout() {

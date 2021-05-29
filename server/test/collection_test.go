@@ -15,7 +15,7 @@ import (
 )
 
 func TestGetCollections(t *testing.T) {
-	AuthoriseNew(t)
+	Authorise(t)
 
 	c1, err := factory.CreateCollection(model.Collection{UserID: AuthUser.ID, Name: "C1"})
 	assert.NotError(t, err)

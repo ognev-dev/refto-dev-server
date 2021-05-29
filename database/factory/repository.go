@@ -36,10 +36,6 @@ func MakeRepository(opt ...model.Repository) (m model.Repository, err error) {
 	if m.Type == "" {
 		m.Type = model.RepoType(fake.RandString(model.RepositoryTypesList))
 	}
-	if m.Confirmed == nil {
-		confirmed := util.RandomBool()
-		m.Confirmed = &confirmed
-	}
 	if m.Secret == "" {
 		m.Secret, err = util.HashPassword(util.RandomString(10))
 		if err != nil {

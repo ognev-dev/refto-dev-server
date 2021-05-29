@@ -3,6 +3,8 @@ package handler
 import (
 	"net/http"
 
+	"github.com/refto/server/util"
+
 	"github.com/refto/server/database/model"
 
 	"github.com/refto/server/service/repository"
@@ -22,6 +24,7 @@ func GetPublicRepositories(c *gin.Context) {
 		model.RepoTypeGlobal,
 		model.RepoTypePublic,
 	}
+	req.Confirmed = util.NewBool(true)
 	data, count, err := repository.Filter(req)
 	if err != nil {
 		Abort(c, err)

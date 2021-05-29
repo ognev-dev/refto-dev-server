@@ -9,10 +9,6 @@ import (
 	"github.com/refto/server/util"
 )
 
-var (
-	errRepoDeleteWrongUser = errors.Unprocessable("you can't simply delete repository that is not created by you")
-)
-
 const ctxRepositoryKey = "repository_model"
 
 func Repository(c *gin.Context) model.Repository {
@@ -33,7 +29,7 @@ type FilterRepositories struct {
 	// internal only
 	Types     []model.RepoType `json:"-" form:"-"`
 	UserID    int64            `json:"-" form:"-"`
-	Confirmed bool             `json:"-" form:"-"`
+	Confirmed *bool            `json:"-" form:"-"`
 }
 
 type CreateRepository struct {
@@ -59,6 +55,11 @@ func (r *CreateRepository) Validate(*gin.Context) (err error) {
 }
 
 func (r *CreateRepository) ToModel(c *gin.Context) (m model.Repository) {
+	// cannot create repo with type "global"
+	if r.Type == model.RepoTypeGlobal {
+		r.Type = model.RepoTypePublic
+	}
+
 	return model.Repository{
 		UserID:      AuthUser(c).ID,
 		Path:        r.Path,
@@ -98,13 +99,15 @@ func (r *UpdateRepository) Validate(c *gin.Context) (err error) {
 }
 
 func (r UpdateRepository) ToModel(m *model.Repository) {
+
 	if r.Name != nil {
 		m.Name = *r.Name
 	}
 	if r.Description != nil {
-		m.Name = *r.Description
+		m.Description = *r.Description
 	}
-	if r.Type != nil {
+	// cannot update repo to type "global"
+	if r.Type != nil && *r.Type != model.RepoTypeGlobal {
 		m.Type = *r.Type
 	}
 }

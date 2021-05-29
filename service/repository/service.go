@@ -43,6 +43,9 @@ func Filter(req request.FilterRepositories) (data []model.Repository, count int,
 	if len(req.Types) > 1 {
 		q.WhereIn("repository.type IN (?)", req.Types)
 	}
+	if req.Confirmed != nil {
+		q.Where("repository.confirmed IS ?", req.Confirmed)
+	}
 
 	count, err = q.SelectAndCount()
 	return
@@ -71,8 +74,7 @@ func Create(m *model.Repository) (secret string, err error) {
 		return
 	}
 
-	confirmed := false
-	m.Confirmed = &confirmed
+	m.Confirmed = false
 
 	err = database.ORM().Insert(m)
 	return
