@@ -17,8 +17,7 @@ type GitHubWebHookHeaders struct {
 }
 
 type GitHubRepoPushed struct {
-	Repo        GitHubRepo        `json:"repository" binding:"required"`
-	PullRequest GitHubPullRequest `json:"pull_request"`
+	Repo GitHubRepo `json:"repository" binding:"required"`
 }
 
 type GitHubRepo struct {
@@ -30,12 +29,13 @@ type GitHubRepo struct {
 }
 
 type GitHubPullRequestEvent struct {
-	Action      githubpullrequest.Action `json:"action"`
-	Number      int                      `json:"number"`
-	PullRequest GitHubPullRequest        `json:"pull_request"`
+	Action githubpullrequest.Action `json:"action"`
+	Number int                      `json:"number"`
+	PR     GitHubPR                 `json:"pull_request"`
+	Repo   GitHubRepo               `json:"repository"`
 }
 
-type GitHubPullRequest struct {
+type GitHubPR struct {
 	Title      string          `json:"title"`
 	HTMLURL    string          `json:"html_url"`
 	User       GitHubUser      `json:"user"`

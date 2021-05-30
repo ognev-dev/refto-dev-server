@@ -23,7 +23,7 @@ func Register(r *gin.Engine) {
 	r.Use(openAPIHandler)
 
 	// serve static
-	r.Use(static.Serve(conf.Server.Static.WebPath, static.LocalFile(conf.Server.Static.LocalPath, false)))
+	r.Use(static.Serve(conf.Server.Static.Web, static.LocalFile(conf.Server.Static.Local, false)))
 
 	api := r.Group(conf.Server.ApiBasePath)
 	api.Use(
@@ -52,7 +52,7 @@ func Register(r *gin.Engine) {
 	)
 
 	r.NoRoute(func(c *gin.Context) {
-		data, err := ioutil.ReadFile(filepath.Join(conf.Server.Static.LocalPath, static.INDEX))
+		data, err := ioutil.ReadFile(filepath.Join(conf.Server.Static.Local, static.INDEX))
 		if err != nil {
 			logrus.Error(err)
 			c.AbortWithStatus(http.StatusNotFound)
@@ -98,12 +98,12 @@ func openAPIHandler(c *gin.Context) {
 
 	conf := config.Get()
 
-	if c.Request.RequestURI != path.Join(conf.Server.Static.WebPath, openAPIURI) {
+	if c.Request.RequestURI != path.Join(conf.Server.Static.Web, openAPIURI) {
 		c.Next()
 		return
 	}
 
-	data, err := ioutil.ReadFile(filepath.Join(conf.Server.Static.LocalPath, openAPIURI))
+	data, err := ioutil.ReadFile(filepath.Join(conf.Server.Static.Local, openAPIURI))
 	if err != nil {
 		logrus.Error(err)
 		c.AbortWithStatus(http.StatusNotFound)

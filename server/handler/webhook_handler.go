@@ -133,6 +133,19 @@ func ProcessPullRequestActions(c *gin.Context) {
 		return
 	}
 
+	var req request.GitHubPullRequestEvent
+	err = c.ShouldBindJSON(&req)
+	if err != nil {
+		Abort(c, err)
+		return
+	}
+
+	repo, err := repository.FindByPath(req.Repo.Path)
+	if err != nil {
+		Abort(c, err)
+		return
+	}
+
 	// check signature
 	body, err := copyRequestBody(c)
 	if err != nil {
@@ -141,8 +154,7 @@ func ProcessPullRequestActions(c *gin.Context) {
 		return
 	}
 
-	conf := config.Get()
-	validSig, err := githubwebhook.IsValidHMAC(body, headers.EventSig, conf.GitHub.DataPushedHookSecret)
+	validSig, err := githubwebhook.IsValidHMAC(body, headers.EventSig, repo.Secret)
 	if err != nil {
 		log.Error("[ERROR] " + err.Error())
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -151,13 +163,6 @@ func ProcessPullRequestActions(c *gin.Context) {
 	if !validSig {
 		log.Error("[ERROR] github's webhook (pull_request) invalid signature")
 		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-
-	var req request.GitHubPullRequestEvent
-	err = c.ShouldBindJSON(&req)
-	if err != nil {
-		Abort(c, err)
 		return
 	}
 
@@ -171,8 +176,9 @@ func ProcessPullRequestActions(c *gin.Context) {
 
 	// because data check might take some time, mark HEAD as status "pending"
 	// (in fact it is "in-progress", but some feedback better than nothing)
-	_, _, err = datawarden.Service().Status(
-		req.PullRequest.Head.SHA,
+	dw := datawarden.New(repo.Path)
+	_, _, err = dw.Status(
+		req.PR.Head.SHA,
 		githubpullrequest.StatusPending,
 		"Checking data...",
 		nil,
@@ -189,7 +195,7 @@ func ProcessPullRequestActions(c *gin.Context) {
 		// the error might be not related to pull request checks (like internal error or whatever)
 		defer func() {
 			if err != nil {
-				comment, _, err2 := datawarden.Service().Comment(req.Number, err.Error())
+				comment, _, err2 := dw.Comment(req.Number, err.Error())
 				if err2 != nil {
 					log.Error("[ERROR] data warden comment: " + err2.Error())
 					return
@@ -197,12 +203,12 @@ func ProcessPullRequestActions(c *gin.Context) {
 
 				var commentURL *string
 				if comment.ID != nil {
-					url := datawarden.Service().PRCommentLink(req.Number, *comment.ID)
+					url := dw.PRCommentLink(req.Number, *comment.ID)
 					commentURL = &url
 				}
 
-				_, _, err = datawarden.Service().Status(
-					req.PullRequest.Head.SHA,
+				_, _, err = dw.Status(
+					req.PR.Head.SHA,
 					githubpullrequest.StatusFailure,
 					err.Error(),
 					commentURL,
@@ -215,12 +221,12 @@ func ProcessPullRequestActions(c *gin.Context) {
 		}()
 
 		// to make sure that data checks will not go into conflicts
-		// i'd clone each PR's HEAD in "pr_{PR_ID}_{HEAD_SHA}" directory
-		cloneDir := fmt.Sprintf("pr_%d_%s", req.Number, req.PullRequest.Head.SHA)
+		// i'd clone each PR's HEAD in " {repoPath}/pr_{PR_ID}_{HEAD_SHA}" directory
+		cloneDir := path.Join(repo.Path, fmt.Sprintf("pr_%d_%s", req.Number, req.PR.Head.SHA))
 		_ = os.MkdirAll(path.Join("pr-checks", cloneDir), 0755)
 
 		_, err = git.PlainClone(cloneDir, false, &git.CloneOptions{
-			URL:               req.PullRequest.Head.Repo.CloneURL,
+			URL:               req.PR.Head.Repo.CloneURL,
 			RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 		})
 		if err != nil {
@@ -237,9 +243,9 @@ func ProcessPullRequestActions(c *gin.Context) {
 			}
 		}()
 
-		// TODO validate not only json schema but everything that should be validated
-		// like URLs must be valid URL, dates must be valid dates
-		// and so on (probably can be done with json schema custom validators)
+		// TODO validate not only json schema but everything that should be validated?
+		//  like URLs must be valid URL, dates must be valid dates, etc
+		//   and so on (probably can be done with json schema custom validators)
 		_, err = jsonschema.Validate(cloneDir)
 		if err != nil {
 			err = fmt.Errorf("[ERROR] data validate: %s", err.Error())
@@ -248,23 +254,23 @@ func ProcessPullRequestActions(c *gin.Context) {
 		}
 
 		// TODO make test run on database
-		// 1. copy current database
-		// 2. run import data into it
-		// 3. check if any errs
-		// 4. delete this (copied) database
+		//  1. create new db
+		//  2. insert repo
+		//  3. run validation
+		//  4. drop db
 
 		// TODO set reviewers according to topics
-		//_, _, err = client.PullRequests.RequestReviewers(context.Background(), "refto", "data", 1, github.ReviewersRequest{
-		//	Reviewers: []string{
+		//  _, _, err = client.PullRequests.RequestReviewers(context.Background(), "refto", "data", 1, github.ReviewersRequest{
+		//  Reviewers: []string{
 		//		"data-warden",
-		//	},
-		//})
+		//	 },
+		//  })
 
 		// all good, mark commit as success
-		_, _, err = datawarden.Service().Status(
-			req.PullRequest.Head.SHA,
+		_, _, err = dw.Status(
+			req.PR.Head.SHA,
 			githubpullrequest.StatusSuccess,
-			datawarden.Service().DataCheckSuccessMessage(),
+			dw.DataCheckSuccessMessage(),
 			nil,
 		)
 		if err != nil {

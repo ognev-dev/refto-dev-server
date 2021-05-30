@@ -52,7 +52,11 @@ func GetEntities(c *gin.Context) {
 		return
 	}
 
-	topics, err := topic.Common(req.Topics, req.Collection)
+	topics, err := topic.Common(topic.CommonTopicsParams{
+		Topics:       req.Topics,
+		CollectionID: req.Collection,
+		RepoID:       req.Repo,
+	})
 	if err != nil {
 		Abort(c, err)
 		return
