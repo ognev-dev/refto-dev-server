@@ -6,6 +6,8 @@ import (
 	"os"
 	"path"
 
+	"github.com/refto/server/service/repository"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-git/go-git/v5"
 	"github.com/refto/server/config"
@@ -19,10 +21,12 @@ import (
 )
 
 // ImportDataFromRepoByGitHubWebHook is a webhook's handler that is triggered by GitHub
-// Once commits pushed to main branch, Github will send request to a route which will call this method
+// Once commits pushed to a branch, Github will send request to a route which will call this method
 // (Trigger must set manually on Github)
 // Here we simply check for valid  signature, then clone repo to have data locally and then import it.
-// Note: push to main branch must done thru PRs, otherwise I'm not sure if request body will be correct, I didn't test this case
+// Note: Payloads are capped at 25 MB. If your event generates a larger payload, a webhook will not be fired. This may happen, for example, on a create event if many branches or tags are pushed at once. We suggest monitoring your payload size to ensure delivery.
+// Note: You will not receive a webhook for this event when you push more than three tags at once.
+// https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#push
 func ImportDataFromRepoByGitHubWebHook(c *gin.Context) {
 	conf := config.Get()
 	var headers request.GitHubWebHookHeaders
@@ -46,18 +50,6 @@ func ImportDataFromRepoByGitHubWebHook(c *gin.Context) {
 		return
 	}
 
-	validSig, err := githubwebhook.ValidMAC(body, headers.EventSig, conf.GitHub.DataPushedHookSecret)
-	if err != nil {
-		log.Error("[ERROR] " + err.Error())
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-	if !validSig {
-		log.Error("[ERROR] github's webhook (push) invalid signature")
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-
 	var req request.GitHubRepoPushed
 	err = c.ShouldBindJSON(&req)
 	if err != nil {
@@ -65,25 +57,36 @@ func ImportDataFromRepoByGitHubWebHook(c *gin.Context) {
 		return
 	}
 
-	// this is due to config is not properly set,
-	// but anyway it is good to check
-	if req.Repo.CloneURL != conf.GitHub.DataRepo {
-		log.Errorf("clone repo (%s) is not same as data repo (%s)", req.Repo.CloneURL, config.Get().GitHub.DataRepo)
+	repo, err := repository.FindByPath(req.Repo.Path)
+	if err != nil {
+		Abort(c, err)
+		return
+	}
+
+	validSig, err := githubwebhook.IsValidHMAC(body, headers.EventSig, repo.Secret)
+	if err != nil {
+		log.Error("[ERROR] " + err.Error())
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	if !validSig {
+		log.Error("[ERROR] github's webhook invalid signature")
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
 	// import data on goroutine, because it is nothing to do with request
-	// TODO: should make selective import using PR's diff
+	// TODO: make selective import using diff ?
 	go func() {
-		log.Info("Starting data import from " + conf.GitHub.DataRepo + " to " + conf.Dir.Data)
-		err := os.RemoveAll(conf.Dir.Data)
+		cloneTo := path.Join(conf.Dir.Data, req.Repo.Path)
+		log.Info("Starting data import from " + req.Repo.CloneURL + " to " + cloneTo)
+		err := os.RemoveAll(cloneTo)
 		if err != nil {
 			log.Error("[ERROR] os.RemoveAll: " + err.Error())
 			return
 		}
 		_, err = git.PlainClone(conf.Dir.Data, false, &git.CloneOptions{
-			URL:               conf.GitHub.DataRepo,
+			URL:               req.Repo.CloneURL,
 			RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 		})
 		if err != nil {
@@ -91,16 +94,23 @@ func ImportDataFromRepoByGitHubWebHook(c *gin.Context) {
 			return
 		}
 
-		_, err = jsonschema.Validate(conf.Dir.Data)
+		_, err = jsonschema.Validate(cloneTo)
 		if err != nil {
 			log.Error("[ERROR] data validate: " + err.Error())
 			return
 		}
 
-		err = dataimport.Import()
+		err = dataimport.Import(cloneTo, repo.ID)
 		if err != nil {
 			log.Error("[ERROR] data validate: " + err.Error())
 			return
+		}
+
+		if !repo.Confirmed {
+			err = repository.MakeConfirmed(repo.ID)
+			if err != nil {
+				log.Error("[ERROR] make confirmed: " + err.Error())
+			}
 		}
 
 		log.Info("Data import from repository completed")
@@ -132,7 +142,7 @@ func ProcessPullRequestActions(c *gin.Context) {
 	}
 
 	conf := config.Get()
-	validSig, err := githubwebhook.ValidMAC(body, headers.EventSig, conf.GitHub.DataPushedHookSecret)
+	validSig, err := githubwebhook.IsValidHMAC(body, headers.EventSig, conf.GitHub.DataPushedHookSecret)
 	if err != nil {
 		log.Error("[ERROR] " + err.Error())
 		c.AbortWithStatus(http.StatusBadRequest)

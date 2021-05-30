@@ -68,12 +68,7 @@ func Create(m *model.Repository) (secret string, err error) {
 		return
 	}
 
-	secret = util.RandomString()
-	m.Secret, err = util.HashPassword(secret)
-	if err != nil {
-		return
-	}
-
+	m.Secret = util.RandomString()
 	m.Confirmed = false
 
 	err = database.ORM().Insert(m)
@@ -82,12 +77,7 @@ func Create(m *model.Repository) (secret string, err error) {
 
 func NewSecret(repoID int64) (secret string, err error) {
 	secret = util.RandomString()
-	hash, err := util.HashPassword(secret)
-	if err != nil {
-		return
-	}
-
-	err = UpdateSecret(repoID, hash)
+	err = UpdateSecret(repoID, secret)
 	return
 }
 
@@ -96,6 +86,16 @@ func UpdateSecret(repoID int64, secret string) (err error) {
 		Model(&model.Repository{}).
 		Where("id = ?", repoID).
 		Set("secret = ?", secret).
+		Update()
+
+	return
+}
+
+func MakeConfirmed(repoID int64) (err error) {
+	_, err = database.ORM().
+		Model(&model.Repository{}).
+		Where("id = ?", repoID).
+		Set("confirmed = TRUE").
 		Update()
 
 	return

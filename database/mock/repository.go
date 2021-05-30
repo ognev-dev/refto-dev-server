@@ -1,4 +1,4 @@
-package factory
+package mock
 
 import (
 	fake "github.com/brianvoe/gofakeit"
@@ -7,7 +7,7 @@ import (
 	"github.com/refto/server/util"
 )
 
-func MakeRepository(opt ...model.Repository) (m model.Repository, err error) {
+func Repository(opt ...model.Repository) (m model.Repository, err error) {
 	if len(opt) == 1 {
 		m = opt[0]
 	}
@@ -23,7 +23,7 @@ func MakeRepository(opt ...model.Repository) (m model.Repository, err error) {
 	}
 	if m.UserID == 0 {
 		var u model.User
-		u, err = CreateUser()
+		u, err = InsertUser()
 		if err != nil {
 			return
 		}
@@ -37,17 +37,14 @@ func MakeRepository(opt ...model.Repository) (m model.Repository, err error) {
 		m.Type = model.RepoType(fake.RandString(model.RepositoryTypesList))
 	}
 	if m.Secret == "" {
-		m.Secret, err = util.HashPassword(util.RandomString(10))
-		if err != nil {
-			return
-		}
+		m.Secret = util.RandomString()
 	}
 
 	return
 }
 
-func CreateRepository(opt ...model.Repository) (m model.Repository, err error) {
-	m, err = MakeRepository(opt...)
+func InsertRepository(opt ...model.Repository) (m model.Repository, err error) {
+	m, err = Repository(opt...)
 	if err != nil {
 		return
 	}

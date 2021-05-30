@@ -17,7 +17,7 @@ import (
 	"github.com/go-pg/pg/v9/orm"
 	"github.com/refto/server/config"
 	"github.com/refto/server/database"
-	"github.com/refto/server/database/factory"
+	"github.com/refto/server/database/mock"
 	"github.com/refto/server/database/model"
 	"github.com/refto/server/logger"
 	"github.com/refto/server/server/route"
@@ -297,7 +297,7 @@ func TestFilter(t *testing.T, path string, request, response interface{}) *httpt
 
 func Authorise(t *testing.T) *model.User {
 	Logout()
-	user, err := factory.CreateUser()
+	user, err := mock.InsertUser()
 	assert.NotError(t, err)
 	AuthoriseAs(t, &user)
 

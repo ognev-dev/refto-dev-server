@@ -7,7 +7,7 @@ import (
 
 	"github.com/refto/server/service/repository"
 
-	"github.com/refto/server/database/factory"
+	"github.com/refto/server/database/mock"
 
 	"github.com/refto/server/server/response"
 
@@ -48,7 +48,7 @@ func TestCreateRepository(t *testing.T) {
 func TestCreateRepository_Existing(t *testing.T) {
 	Authorise(t)
 
-	m, err := factory.CreateRepository()
+	m, err := mock.InsertRepository()
 	assert.NotError(t, err)
 
 	req := request.CreateRepository{
@@ -64,7 +64,7 @@ func TestCreateRepository_Existing(t *testing.T) {
 func TestRepositoryGetNewSecret(t *testing.T) {
 	Authorise(t)
 
-	m, err := factory.CreateRepository(model.Repository{
+	m, err := mock.InsertRepository(model.Repository{
 		UserID: AuthUser.ID,
 	})
 	assert.NotError(t, err)
@@ -82,11 +82,11 @@ func TestRepositoryGetNewSecret(t *testing.T) {
 func TestGetUserRepositories(t *testing.T) {
 	Authorise(t)
 
-	m1, err := factory.CreateRepository(model.Repository{UserID: AuthUser.ID})
+	m1, err := mock.InsertRepository(model.Repository{UserID: AuthUser.ID})
 	assert.NotError(t, err)
-	m2, err := factory.CreateRepository(model.Repository{UserID: AuthUser.ID})
+	m2, err := mock.InsertRepository(model.Repository{UserID: AuthUser.ID})
 	assert.NotError(t, err)
-	_, err = factory.CreateRepository() // not user's
+	_, err = mock.InsertRepository() // not user's
 	assert.NotError(t, err)
 
 	var req request.FilterRepositories
@@ -110,32 +110,32 @@ func TestGetPublicRepositories(t *testing.T) {
 	Authorise(t)
 
 	// hidden repo should not be in response
-	_, err := factory.CreateRepository(model.Repository{
+	_, err := mock.InsertRepository(model.Repository{
 		Type:      model.RepoTypeHidden,
 		Confirmed: true,
 	})
 	assert.NotError(t, err)
 
 	// private repo should not be in response
-	_, err = factory.CreateRepository(model.Repository{
+	_, err = mock.InsertRepository(model.Repository{
 		Type:      model.RepoTypePrivate,
 		Confirmed: true,
 	})
 	assert.NotError(t, err)
 
 	// public but not confirmed should not be in response
-	_, err = factory.CreateRepository(model.Repository{
+	_, err = mock.InsertRepository(model.Repository{
 		Type:      model.RepoTypePublic,
 		Confirmed: false,
 	})
 	assert.NotError(t, err)
 
-	m1, err := factory.CreateRepository(model.Repository{
+	m1, err := mock.InsertRepository(model.Repository{
 		Type:      model.RepoTypeGlobal,
 		Confirmed: true,
 	})
 	assert.NotError(t, err)
-	m2, err := factory.CreateRepository(model.Repository{
+	m2, err := mock.InsertRepository(model.Repository{
 		Type:      model.RepoTypePublic,
 		Confirmed: true,
 	})
@@ -159,7 +159,7 @@ func TestGetPublicRepositories(t *testing.T) {
 }
 
 func TestGetRepositoryByPath_PublicAndHidden(t *testing.T) {
-	m, err := factory.CreateRepository(model.Repository{Type: model.RepoTypePublic})
+	m, err := mock.InsertRepository(model.Repository{Type: model.RepoTypePublic})
 	assert.NotError(t, err)
 
 	var resp model.Repository
@@ -171,7 +171,7 @@ func TestGetRepositoryByPath_PublicAndHidden(t *testing.T) {
 	assert.Equals(t, m.Type, resp.Type)
 	assert.Equals(t, m.Confirmed, resp.Confirmed)
 
-	m, err = factory.CreateRepository(model.Repository{Type: model.RepoTypeHidden})
+	m, err = mock.InsertRepository(model.Repository{Type: model.RepoTypeHidden})
 	assert.NotError(t, err)
 
 	TestGet(t, "repositories/"+m.Path, &resp)
@@ -184,7 +184,7 @@ func TestGetRepositoryByPath_PublicAndHidden(t *testing.T) {
 }
 
 func TestGetRepositoryByPath_Private(t *testing.T) {
-	m, err := factory.CreateRepository(model.Repository{Type: model.RepoTypePrivate})
+	m, err := mock.InsertRepository(model.Repository{Type: model.RepoTypePrivate})
 	assert.NotError(t, err)
 
 	TestGet404(t, "repositories/"+m.Path)
@@ -202,7 +202,7 @@ func TestGetRepositoryByPath_Private(t *testing.T) {
 func TestUpdateRepository(t *testing.T) {
 	Authorise(t)
 
-	m, err := factory.CreateRepository(model.Repository{
+	m, err := mock.InsertRepository(model.Repository{
 		Type:   model.RepoTypePublic,
 		UserID: AuthUser.ID,
 	})
@@ -234,11 +234,11 @@ func TestUpdateRepository(t *testing.T) {
 func TestDeleteRepository(t *testing.T) {
 	Authorise(t)
 
-	repo, err := factory.CreateRepository(model.Repository{UserID: AuthUser.ID})
+	repo, err := mock.InsertRepository(model.Repository{UserID: AuthUser.ID})
 	assert.NotError(t, err)
-	entity, err := factory.CreateEntity(model.Entity{RepoID: repo.ID})
+	entity, err := mock.InsertEntity(model.Entity{RepoID: repo.ID})
 	assert.NotError(t, err)
-	_, err = factory.CreateCollectionEntity(model.CollectionEntity{
+	_, err = mock.InsertCollectionEntity(model.CollectionEntity{
 		EntityID: entity.ID,
 	})
 	assert.NotError(t, err)

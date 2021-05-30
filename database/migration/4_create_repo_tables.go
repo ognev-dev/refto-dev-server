@@ -31,6 +31,10 @@ ALTER TABLE entities
 
 ALTER TABLE entities
     ALTER COLUMN repo_id SET NOT NULL;
+
+DROP INDEX topics_name_key;
+ALTER TABLE topics
+    ADD COLUMN repo_id BIGINT REFERENCES repositories (id);
 `
 
 	migrations.MustRegister(func(db migrations.DB) (err error) {

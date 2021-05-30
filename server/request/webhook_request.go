@@ -17,12 +17,16 @@ type GitHubWebHookHeaders struct {
 }
 
 type GitHubRepoPushed struct {
-	Repo        GitHubRepoPushedRepo `json:"repository" binding:"required"`
-	PullRequest GitHubPullRequest    `json:"pull_request"`
+	Repo        GitHubRepo        `json:"repository" binding:"required"`
+	PullRequest GitHubPullRequest `json:"pull_request"`
 }
 
-type GitHubRepoPushedRepo struct {
-	CloneURL string `json:"clone_url" binding:"required"`
+type GitHubRepo struct {
+	Name        string `json:"name" binding:"required"`
+	Description string `json:"description" binding:"required"`
+	CloneURL    string `json:"clone_url" binding:"required"`
+	Path        string `json:"full_name" binding:"required"`
+	Private     bool   `json:"private" binding:"required"`
 }
 
 type GitHubPullRequestEvent struct {

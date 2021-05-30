@@ -9,6 +9,7 @@ type EntityData map[string]interface{}
 
 type Entity struct {
 	ID        int64      `json:"id"`
+	RepoID    int64      `json:"repo_id"`
 	Token     string     `json:"token"`
 	Title     string     `json:"title"`
 	Type      string     `json:"type" pg:",use_zero"`
@@ -16,7 +17,6 @@ type Entity struct {
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt *time.Time `json:"updated_at"`
 	DeletedAt *time.Time `json:"deleted_at"`
-	RepoID    int64      `json:"repo_id"`
 
 	Topics      []Topic      `json:"-" pg:"-"`
 	Collections []Collection `json:"collections" pg:"-"`
