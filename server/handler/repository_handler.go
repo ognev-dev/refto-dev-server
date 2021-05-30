@@ -3,6 +3,8 @@ package handler
 import (
 	"net/http"
 
+	dataimport "github.com/refto/server/service/data_import"
+
 	"github.com/refto/server/util"
 
 	"github.com/refto/server/database/model"
@@ -105,10 +107,8 @@ func UpdateRepository(c *gin.Context) {
 }
 
 func GetNewRepositorySecret(c *gin.Context) {
-	userID := request.AuthUser(c).ID
 	repo := request.Repository(c)
-	if userID != repo.UserID {
-		Abort(c, repository.ErrOwnershipViolation)
+	if request.InvalidUser(c, repo.ID) {
 		return
 	}
 
@@ -123,6 +123,27 @@ func GetNewRepositorySecret(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, resp)
+}
+
+func ImportRepository(c *gin.Context) {
+	repo := request.Repository(c)
+	if request.InvalidUser(c, repo.ID) {
+		return
+	}
+
+	// only confirmed repositories can be imported on demand
+	if !repo.Confirmed {
+		err := repository.ErrNotConfirmed
+		Abort(c, err)
+		return
+	}
+
+	err := dataimport.FromGitHub(repo)
+	if err != nil {
+		Abort(c, err)
+	}
+
+	c.JSON(http.StatusOK, response.OK("Data from repository successfully imported"))
 }
 
 func DeleteRepository(c *gin.Context) {

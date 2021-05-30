@@ -15,10 +15,12 @@ type Repository struct {
 	User   *User `json:"-"`
 
 	// Path is just a "{user}/{repo}" on GitHub
+	// note that this is equals to "full_name" on GitHub API
 	Path string `json:"path"`
 
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	CloneURL    string `json:"-"`
 
 	// Secret is needed to authenticate repository from Github
 	// It is random string given to the user who creates repository
@@ -32,6 +34,11 @@ type Repository struct {
 	// Confirmed is a flag to mark that user is confirmed access to repo
 	// Confirmed is set to true on first successful import
 	Confirmed bool `json:"confirmed"`
+
+	// TODO make proper import logs
+	ImportStatus RepoImportStatus `json:"import_status"`
+	ImportLog    string           `json:"import_log"`
+	ImportAt     *time.Time       `json:"import_at"`
 
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt *time.Time `json:"updated_at"`
@@ -51,6 +58,13 @@ func (m *Repository) BeforeUpdate(ctx context.Context) (context.Context, error) 
 
 	return ctx, nil
 }
+
+type RepoImportStatus string
+
+const (
+	RepoImportStatusOK  = "ok"
+	RepoImportStatusErr = "error"
+)
 
 type RepoType string
 

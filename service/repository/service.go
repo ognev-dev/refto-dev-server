@@ -15,6 +15,7 @@ var (
 	ErrRepoAlreadyClaimed   = errors.Unprocessable("Another user already added this repository")
 	ErrRepoNotFoundByPath   = errors.NotFound("Repository is not found by path")
 	ErrOwnershipViolation   = errors.NotFound("You are not the owner of repository, how dare are you?")
+	ErrNotConfirmed         = errors.Unprocessable("Repository is not confirmed yet")
 )
 
 func Filter(req request.FilterRepositories) (data []model.Repository, count int, err error) {
@@ -86,16 +87,6 @@ func UpdateSecret(repoID int64, secret string) (err error) {
 		Model(&model.Repository{}).
 		Where("id = ?", repoID).
 		Set("secret = ?", secret).
-		Update()
-
-	return
-}
-
-func MakeConfirmed(repoID int64) (err error) {
-	_, err = database.ORM().
-		Model(&model.Repository{}).
-		Where("id = ?", repoID).
-		Set("confirmed = TRUE").
 		Update()
 
 	return

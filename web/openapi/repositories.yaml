@@ -22,6 +22,11 @@ Repository:
       type: string
     description:
       type: string
+    import_status:
+      type: string
+      enum: ["ok", "error"]
+    import_log:
+      type: string
     type:
       $ref: "#Type"
     confirmed:
@@ -30,6 +35,9 @@ Repository:
       type: string
       format: "date-time"
     updated_at:
+      type: string
+      format: "date-time"
+    import_at:
       type: string
       format: "date-time"
 

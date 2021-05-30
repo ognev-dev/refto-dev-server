@@ -3,17 +3,26 @@ package dataimport
 import (
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/refto/server/service/repository"
+	"github.com/sirupsen/logrus"
+
 	"github.com/ghodss/yaml"
+	"github.com/go-git/go-git/v5"
+	"github.com/refto/server/config"
 	"github.com/refto/server/database"
 	"github.com/refto/server/database/model"
+	"github.com/refto/server/errors"
 	"github.com/refto/server/service/data"
 	"github.com/refto/server/service/entity"
 	entitytopic "github.com/refto/server/service/entity_topic"
+	jsonschema "github.com/refto/server/service/json_schema"
 	"github.com/refto/server/service/topic"
+	"github.com/refto/server/util"
 )
 
 // type of data is added as topic
@@ -31,9 +40,70 @@ var autoTopicExceptions = []string{
 	"definition",
 }
 
-// Import imports data
+func FromGitHub(repo model.Repository) (err error) {
+	startAt := time.Now()
+
+	defer func() {
+		repo.ImportAt = util.NewTime(time.Now())
+
+		if err == nil && !repo.Confirmed {
+			repo.Confirmed = true
+		}
+		if err != nil {
+			repo.ImportStatus = model.RepoImportStatusErr
+			repo.ImportLog = err.Error()
+		} else {
+			repo.ImportStatus = model.RepoImportStatusOK
+			// TODO would be nice to tell how many entities and topics imported?
+			repo.ImportLog = "Date imported in " + time.Since(startAt).String()
+		}
+
+		err2 := repository.Update(&repo)
+		if err2 != nil {
+			logrus.Error("[ERROR] clone and import: update repo: " + err2.Error())
+		}
+	}()
+
+	// make dir to clone to
+	conf := config.Get()
+	cloneTo := path.Join(conf.Dir.Data, repo.Path)
+	err = os.RemoveAll(cloneTo) // If the path does not exist RemoveAll  returns nil error
+	if err != nil {
+		err = errors.Wrap(err, "os.RemoveAll")
+		return
+	}
+	_ = os.MkdirAll(cloneTo, 0755)
+
+	// clone
+	_, err = git.PlainClone(conf.Dir.Data, false, &git.CloneOptions{
+		URL:               repo.CloneURL,
+		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
+	})
+	if err != nil {
+		err = errors.Wrap(err, "git clone")
+		return
+	}
+
+	// validate
+	_, err = jsonschema.Validate(cloneTo)
+	if err != nil {
+		err = errors.Wrap(err, "data validate")
+		return
+	}
+
+	// import to DB
+	err = FromDir(cloneTo, repo.ID)
+	if err != nil {
+		err = errors.Wrap(err, "data import")
+		return
+	}
+
+	return nil
+}
+
+// FromDir imports data from local path
 // TODO partial import
-func Import(fromDir string, repoID int64) (err error) {
+func FromDir(dir string, repoID int64) (err error) {
 	// Mark all data as deleted,
 	// and while importing restore existing entities
 	// Entities still marked as deleted after import should be deleted for real
@@ -55,7 +125,7 @@ func Import(fromDir string, repoID int64) (err error) {
 		return
 	}
 
-	err = importDataFromDir(fromDir, repoID)
+	err = importDataFromDir(dir, repoID)
 	if err != nil {
 		return
 	}

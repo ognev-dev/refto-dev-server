@@ -348,6 +348,29 @@ paths:
               schema:
                 $ref: './repositories.yaml#CreateRepositoryResp'
 
+  /repositories/{id}/import/:
+    parameters:
+      - name: id
+        in: path
+        description: ID of repository
+        required: true
+        schema:
+          type: integer
+          format: int64
+    post:
+      tags:
+        - Repositories
+      summary: Import data from GitHub repository
+      description: Repositoty must be confirmed first (by success import from GitHub's webhook or by being added by repo owner)
+      operationId: importRepository
+      responses:
+        '200':
+          description: Status
+          content:
+            application/json:
+              schema:
+                $ref: './responses.yaml#SuccessResponse'
+
   /repositories/{id}/:
     parameters:
       - name: id

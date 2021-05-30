@@ -6,17 +6,15 @@ import (
 	"os"
 	"path"
 
-	"github.com/refto/server/service/repository"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-git/go-git/v5"
-	"github.com/refto/server/config"
 	"github.com/refto/server/server/request"
 	dataimport "github.com/refto/server/service/data_import"
 	datawarden "github.com/refto/server/service/data_warden"
 	githubpullrequest "github.com/refto/server/service/github_pull_request"
 	githubwebhook "github.com/refto/server/service/github_webhook"
 	jsonschema "github.com/refto/server/service/json_schema"
+	"github.com/refto/server/service/repository"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -28,7 +26,6 @@ import (
 // Note: You will not receive a webhook for this event when you push more than three tags at once.
 // https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#push
 func ImportDataFromRepoByGitHubWebHook(c *gin.Context) {
-	conf := config.Get()
 	var headers request.GitHubWebHookHeaders
 	err := c.ShouldBindHeader(&headers)
 	if err != nil {
@@ -42,7 +39,7 @@ func ImportDataFromRepoByGitHubWebHook(c *gin.Context) {
 		return
 	}
 
-	// check signature
+	// copy request body now, it'll need soon to check signature
 	body, err := copyRequestBody(c)
 	if err != nil {
 		log.Error(err)
@@ -75,45 +72,19 @@ func ImportDataFromRepoByGitHubWebHook(c *gin.Context) {
 		return
 	}
 
-	// import data on goroutine, because it is nothing to do with request
+	// import data on goroutine, because repo is authorized, but might take some time to import
 	// TODO: make selective import using diff ?
+	// TODO import using queue
 	go func() {
-		cloneTo := path.Join(conf.Dir.Data, req.Repo.Path)
-		log.Info("Starting data import from " + req.Repo.CloneURL + " to " + cloneTo)
-		err := os.RemoveAll(cloneTo)
-		if err != nil {
-			log.Error("[ERROR] os.RemoveAll: " + err.Error())
-			return
-		}
-		_, err = git.PlainClone(conf.Dir.Data, false, &git.CloneOptions{
-			URL:               req.Repo.CloneURL,
-			RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
-		})
-		if err != nil {
-			log.Error("[ERROR] git clone: " + err.Error())
-			return
-		}
+		// repoURL initially unknown
+		// TODO when adding new repo get repo from GH and if user that adds the repo is owner of the repo
+		//  then mark repo as confirmed and also set repoURL
+		repo.CloneURL = req.Repo.CloneURL
 
-		_, err = jsonschema.Validate(cloneTo)
+		err = dataimport.FromGitHub(repo)
 		if err != nil {
-			log.Error("[ERROR] data validate: " + err.Error())
-			return
+			log.Error("[ERROR] import from GH: " + err.Error())
 		}
-
-		err = dataimport.Import(cloneTo, repo.ID)
-		if err != nil {
-			log.Error("[ERROR] data validate: " + err.Error())
-			return
-		}
-
-		if !repo.Confirmed {
-			err = repository.MakeConfirmed(repo.ID)
-			if err != nil {
-				log.Error("[ERROR] make confirmed: " + err.Error())
-			}
-		}
-
-		log.Info("Data import from repository completed")
 	}()
 
 	c.JSON(http.StatusOK, "ok")
