@@ -41,8 +41,6 @@ type CreateRepository struct {
 
 func (r *CreateRepository) Validate(*gin.Context) (err error) {
 	errs := errors.NewInput()
-	errs.AddIf(util.IsEmptyString(r.Name), "name", "Name is required")
-	errs.AddIf(util.IsEmptyString(r.Description), "description", "Description is required")
 	errs.AddIf(util.IsEmptyString(r.Path), "path", "Path is required")
 	errs.AddIf(util.IsEmptyString(r.Type.String()), "type", "Type is required")
 	errs.AddIf(!r.Type.IsValid(), "type", fmt.Sprintf("Invalid type: '%s'", r.Type))
@@ -58,6 +56,10 @@ func (r *CreateRepository) ToModel(c *gin.Context) (m model.Repository) {
 	// cannot create repo with type "global"
 	if r.Type == model.RepoTypeGlobal {
 		r.Type = model.RepoTypePublic
+	}
+
+	if r.Name == "" {
+		r.Name = r.Path
 	}
 
 	return model.Repository{

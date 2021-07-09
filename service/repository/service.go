@@ -115,6 +115,9 @@ func Delete(id int64) (err error) {
 	// TODO this can take some time if DB is loaded and busy
 	// 	make it async or scheduled
 
+	// TODO this can be unexpected for users who adds entities from this repo to their collections
+	// 	it will be good to notify anyone related to this repo about this event
+
 	_, err = database.ORM().
 		Exec("DELETE FROM collection_entities WHERE entity_id IN (SELECT id FROM entities WHERE repo_id = ?)", id)
 	if err != nil {

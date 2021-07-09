@@ -39,6 +39,8 @@ func GetPublicRepositories(c *gin.Context) {
 	})
 }
 
+// GetUserRepositories returns repos of authorized user
+// GET user/repositories
 func GetUserRepositories(c *gin.Context) {
 	var req request.FilterRepositories
 	if !bindQuery(c, &req) {

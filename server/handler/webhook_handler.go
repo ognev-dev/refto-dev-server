@@ -77,8 +77,8 @@ func ImportDataFromRepoByGitHubWebHook(c *gin.Context) {
 	// TODO import using queue
 	go func() {
 		// repoURL initially unknown
-		// TODO when adding new repo get repo from GH and if user that adds the repo is owner of the repo
-		//  then mark repo as confirmed and also set repoURL
+		// TODO when creating new repo get repo from GH and if user that adds the repo is owner of the repo
+		//  then mark repo as confirmed and also set repoURL there
 		repo.CloneURL = req.Repo.CloneURL
 
 		err = dataimport.FromGitHub(repo)

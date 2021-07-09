@@ -31,6 +31,8 @@ func Register(r *gin.Engine) {
 		middleware.RequestUser,
 	)
 
+	api.GET("ping/", pingHandler)
+
 	// public routes
 	addRoutes(api,
 		publicEntityRoutes,
@@ -129,4 +131,13 @@ func openAPIHandler(c *gin.Context) {
 
 	c.Data(http.StatusOK, "text/yaml", data)
 	c.Abort()
+}
+
+func pingHandler(c *gin.Context) {
+	conf := config.Get()
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"env":  conf.AppEnv,
+		"time": time.Now(),
+		"ref":  c.Request.RemoteAddr,
+	})
 }
