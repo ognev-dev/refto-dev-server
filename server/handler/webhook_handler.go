@@ -33,8 +33,8 @@ func ImportDataFromRepoByGitHubWebHook(c *gin.Context) {
 		return
 	}
 
-	// event must be a push event
-	if headers.EventName != githubwebhook.PushEvent {
+	// event must be a ping or push
+	if headers.EventName != githubwebhook.PushEvent && headers.EventName != githubwebhook.PingEvent {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
@@ -80,6 +80,13 @@ func ImportDataFromRepoByGitHubWebHook(c *gin.Context) {
 		// TODO when creating new repo get repo from GH and if user that adds the repo is owner of the repo
 		//  then mark repo as confirmed and also set repoURL there
 		repo.CloneURL = req.Repo.CloneURL
+
+		if repo.SyncName {
+			repo.Name = req.Repo.Name
+		}
+		if repo.SyncDescription {
+			repo.Description = req.Repo.Description
+		}
 
 		err = dataimport.FromGitHub(repo)
 		if err != nil {

@@ -96,7 +96,7 @@ func Validate(dirPath string) (resp ValidateResult, err error) {
 			return nil
 		}
 
-		t := data.TypeFromFilename(path)
+		t := data.TypeFromFilename(relPath(dirPath, path))
 		_, ok := resp.DataCountByType[t]
 		if !ok {
 			resp.DataCountByType[t] = 0
@@ -125,6 +125,9 @@ func Validate(dirPath string) (resp ValidateResult, err error) {
 		for _, v := range files {
 			schema, ok := schemasRepo[t]
 			if !ok {
+				println("=============================================")
+				println("dir path:", dirPath)
+				println("file path:", v.Path)
 				errs.Add(fmt.Errorf("schema of type '%s' is not exists (source '%s')", t, relPath(dirPath, v.Path)))
 				break
 			}
@@ -153,7 +156,7 @@ func Validate(dirPath string) (resp ValidateResult, err error) {
 }
 
 // registerSchema loads YAML schema from fPath converts it to JSON and adds it to the repo
-// returns error if schema of given type already been registered
+// returns error if schema of given type already registered
 func registerSchema(dirPath, filePath string, repo schemas) (err error) {
 	t := data.TypeFromSchemaFilename(filePath)
 
@@ -187,6 +190,10 @@ func registerSchema(dirPath, filePath string, repo schemas) (err error) {
 	return
 }
 
-func relPath(dirPath, filePath string) string {
-	return strings.TrimPrefix(filePath, dirPath)
+func relPath(basePath, filePath string) string {
+	rel, err := filepath.Rel(basePath, filePath)
+	if err != nil {
+		return filePath
+	}
+	return rel
 }

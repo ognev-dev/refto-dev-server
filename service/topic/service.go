@@ -103,7 +103,7 @@ func Common(in CommonTopicsParams) (out []string, err error) {
 
 func FirstOrCreate(elem *model.Topic) (err error) {
 	err = database.ORM().
-		Model(&elem).
+		Model(elem).
 		Where("name = ?", elem.Name).
 		Where("repo_id = ?", elem.RepoID).
 		First()
@@ -112,7 +112,7 @@ func FirstOrCreate(elem *model.Topic) (err error) {
 	}
 
 	if err == pg.ErrNoRows {
-		err = database.ORM().Insert(&elem)
+		err = database.ORM().Insert(elem)
 	}
 
 	return

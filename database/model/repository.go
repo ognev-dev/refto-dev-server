@@ -20,7 +20,14 @@ type Repository struct {
 
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	CloneURL    string `json:"-"`
+
+	// if user will not set name or description
+	// I'll set it from GH repo, but should know if it from GH
+	// to update it everytime
+	SyncName        bool `json:"-"`
+	SyncDescription bool `json:"-"`
+
+	CloneURL string `json:"-"`
 
 	// Secret is needed to authenticate repository from Github
 	// It is random string given to the user who creates repository

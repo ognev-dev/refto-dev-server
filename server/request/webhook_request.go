@@ -25,7 +25,7 @@ type GitHubRepo struct {
 	Description string `json:"description" binding:"required"`
 	CloneURL    string `json:"clone_url" binding:"required"`
 	Path        string `json:"full_name" binding:"required"`
-	Private     bool   `json:"private" binding:"required"`
+	Private     bool   `json:"private"`
 }
 
 type GitHubPullRequestEvent struct {

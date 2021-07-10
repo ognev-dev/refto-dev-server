@@ -1,6 +1,7 @@
 package dataimport
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
@@ -43,6 +44,8 @@ var autoTopicExceptions = []string{
 func FromGitHub(repo model.Repository) (err error) {
 	startAt := time.Now()
 
+	var dataInfo jsonschema.ValidateResult
+
 	defer func() {
 		repo.ImportAt = util.NewTime(time.Now())
 
@@ -54,8 +57,9 @@ func FromGitHub(repo model.Repository) (err error) {
 			repo.ImportLog = err.Error()
 		} else {
 			repo.ImportStatus = model.RepoImportStatusOK
-			// TODO would be nice to tell how many entities and topics imported?
-			repo.ImportLog = "Date imported in " + time.Since(startAt).String()
+			// TODO would be nice to tell which topics is imported?
+			// TODO plural/singular form for counters
+			repo.ImportLog = fmt.Sprintf("%d entities of %d schemas is imported over %s", dataInfo.DataCount, dataInfo.SchemaCount, time.Since(startAt).String())
 		}
 
 		err2 := repository.Update(&repo)
@@ -75,7 +79,7 @@ func FromGitHub(repo model.Repository) (err error) {
 	_ = os.MkdirAll(cloneTo, 0755)
 
 	// clone
-	_, err = git.PlainClone(conf.Dir.Data, false, &git.CloneOptions{
+	_, err = git.PlainClone(cloneTo, false, &git.CloneOptions{
 		URL:               repo.CloneURL,
 		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 	})
@@ -85,7 +89,7 @@ func FromGitHub(repo model.Repository) (err error) {
 	}
 
 	// validate
-	_, err = jsonschema.Validate(cloneTo)
+	dataInfo, err = jsonschema.Validate(cloneTo)
 	if err != nil {
 		err = errors.Wrap(err, "data validate")
 		return
@@ -115,7 +119,7 @@ func FromDir(dir string, repoID int64) (err error) {
 
 	// delete topics
 	_, err = database.ORM().
-		Exec("DELETE FROM entity_topics WHERE topic_id IN (SELECT id FROM topic WHERE repo_id = ?)", repoID)
+		Exec("DELETE FROM entity_topics WHERE topic_id IN (SELECT id FROM topics WHERE repo_id = ?)", repoID)
 	if err != nil {
 		return
 	}

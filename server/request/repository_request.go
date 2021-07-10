@@ -58,16 +58,14 @@ func (r *CreateRepository) ToModel(c *gin.Context) (m model.Repository) {
 		r.Type = model.RepoTypePublic
 	}
 
-	if r.Name == "" {
-		r.Name = r.Path
-	}
-
 	return model.Repository{
-		UserID:      AuthUser(c).ID,
-		Path:        r.Path,
-		Name:        r.Name,
-		Description: r.Description,
-		Type:        r.Type,
+		UserID:          AuthUser(c).ID,
+		Path:            r.Path,
+		Name:            r.Name,
+		Description:     r.Description,
+		SyncName:        r.Name == "",
+		SyncDescription: r.Description == "",
+		Type:            r.Type,
 	}
 }
 
@@ -83,12 +81,6 @@ func (r *UpdateRepository) Validate(c *gin.Context) (err error) {
 	}
 
 	errs := errors.NewInput()
-	if r.Name != nil {
-		errs.AddIf(util.IsEmptyString(*r.Name), "name", "Name cannot be empty")
-	}
-	if r.Description != nil {
-		errs.AddIf(util.IsEmptyString(*r.Description), "description", "Description cannot be empty")
-	}
 	if r.Type != nil {
 		errs.AddIf(util.IsEmptyString(r.Type.String()), "type", "Type cannot be empty")
 		errs.AddIf(!r.Type.IsValid(), "type", fmt.Sprintf("Invalid type: '%s'", r.Type))
@@ -101,13 +93,23 @@ func (r *UpdateRepository) Validate(c *gin.Context) (err error) {
 }
 
 func (r UpdateRepository) ToModel(m *model.Repository) {
-
 	if r.Name != nil {
+		if *r.Name == "" {
+			m.SyncName = true
+		} else {
+			m.SyncName = *r.Name != m.Name
+		}
 		m.Name = *r.Name
 	}
 	if r.Description != nil {
+		if *r.Name == "" {
+			m.SyncDescription = true
+		} else {
+			m.SyncDescription = *r.Description != m.Description
+		}
 		m.Description = *r.Description
 	}
+
 	// cannot update repo to type "global"
 	if r.Type != nil && *r.Type != model.RepoTypeGlobal {
 		m.Type = *r.Type

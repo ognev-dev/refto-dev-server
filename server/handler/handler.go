@@ -43,6 +43,8 @@ func Abort(c *gin.Context, err error) {
 		}
 	}
 
+	log.Println(resp.Error)
+
 	if resp.Code >= errors.CodeInternal {
 		log.Println(string(debug.Stack()))
 	}

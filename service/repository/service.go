@@ -136,6 +136,12 @@ func Delete(id int64) (err error) {
 	}
 
 	_, err = database.ORM().
+		Exec("DELETE FROM topics WHERE repo_id = ?", id)
+	if err != nil {
+		return
+	}
+
+	_, err = database.ORM().
 		Model(&model.Repository{}).
 		Where("id = ?", id).
 		Delete()
