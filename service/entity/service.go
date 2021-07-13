@@ -3,6 +3,8 @@ package entity
 import (
 	"fmt"
 
+	"github.com/go-pg/pg/v9/orm"
+
 	"github.com/go-pg/pg/v9"
 	"github.com/refto/server/database"
 	"github.com/refto/server/database/filter"
@@ -88,6 +90,10 @@ func Filter(req request.FilterEntities) (data []model.Entity, count int, err err
 		}
 	}
 
+	if req.WithRepo {
+		q.Relation("Repository")
+	}
+
 	q.OrderExpr("updated_at DESC, created_at DESC")
 	count, err = q.SelectAndCount()
 
@@ -114,7 +120,7 @@ func CreateOrUpdate(elem *model.Entity) (err error) {
 	old := model.Entity{}
 	err = database.ORM().
 		Model(&old).
-		Where("token = ?", elem.Token).
+		Where("path = ?", elem.Path).
 		Where("repo_id = ?", elem.RepoID).
 		First()
 	if err != nil && err != pg.ErrNoRows {
@@ -128,7 +134,7 @@ func CreateOrUpdate(elem *model.Entity) (err error) {
 			return
 		}
 	} else {
-		old.Token = elem.Token
+		old.Path = elem.Path
 		old.Title = elem.Title
 		old.Type = elem.Type
 		old.DeletedAt = nil
@@ -151,11 +157,20 @@ func CreateOrUpdate(elem *model.Entity) (err error) {
 	return nil
 }
 
-func FindByID(id int64) (m model.Entity, err error) {
-	err = database.ORM().
+func FindByID(id int64, filters ...filter.Fn) (m model.Entity, err error) {
+	q := database.ORM().
 		Model(&m).
-		Where("id = ?", id).
-		First()
+		Where("entity.id = ?", id)
 
+	filter.Apply(q, filters...)
+
+	err = q.First()
 	return
+}
+
+func WithRepository() filter.Fn {
+	return func(q *orm.Query) (*orm.Query, error) {
+		q.Relation("Repository")
+		return q, nil
+	}
 }

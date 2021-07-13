@@ -13,8 +13,8 @@ func Entity(opt ...model.Entity) (m model.Entity, err error) {
 		m = opt[0]
 	}
 
-	if m.Token == "" {
-		m.Token = fake.UUID()
+	if m.Path == "" {
+		m.Path = fake.UUID()
 	}
 	if m.Title == "" {
 		m.Title = fake.Name()

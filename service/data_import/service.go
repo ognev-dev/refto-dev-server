@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gertd/go-pluralize"
+
 	"github.com/refto/server/service/repository"
 	"github.com/sirupsen/logrus"
 
@@ -41,6 +43,8 @@ var autoTopicExceptions = []string{
 	"definition",
 }
 
+var pluralizer = pluralize.NewClient()
+
 func FromGitHub(repo model.Repository) (err error) {
 	startAt := time.Now()
 
@@ -57,9 +61,21 @@ func FromGitHub(repo model.Repository) (err error) {
 			repo.ImportLog = err.Error()
 		} else {
 			repo.ImportStatus = model.RepoImportStatusOK
+			dur := time.Since(startAt).String()
 			// TODO would be nice to tell which topics is imported?
-			// TODO plural/singular form for counters
-			repo.ImportLog = fmt.Sprintf("%d entities of %d schemas is imported over %s", dataInfo.DataCount, dataInfo.SchemaCount, time.Since(startAt).String())
+			// TODO correct plural/singular form for counters
+			var importLog string
+			if dataInfo.SchemaCount == 1 {
+				var typeName string
+				for k := range dataInfo.DataCountByType {
+					typeName = string(k)
+					break
+				}
+				importLog = fmt.Sprintf("%d %s imported in %s", dataInfo.DataCount, pluralizer.Plural(typeName), dur)
+			} else {
+				importLog = fmt.Sprintf("%d entities of %d types is imported in %s", dataInfo.DataCount, dataInfo.SchemaCount, dur)
+			}
+			repo.ImportLog = importLog
 		}
 
 		err2 := repository.Update(&repo)
@@ -110,7 +126,7 @@ func FromGitHub(repo model.Repository) (err error) {
 func FromDir(dir string, repoID int64) (err error) {
 	// Mark all data as deleted,
 	// and while importing restore existing entities
-	// Entities still marked as deleted after import should be deleted for real
+	// Entities that still marked as deleted after import should be deleted for real
 	_, err = database.ORM().
 		Exec("UPDATE entities SET deleted_at=NOW() WHERE repo_id = ?", repoID)
 	if err != nil {
@@ -180,8 +196,6 @@ func importDataFromDir(dir string, repoID int64) (err error) {
 		if extWithType[0] != '.' {
 			extWithType = "." + extWithType
 		}
-		token := strings.TrimPrefix(path, dir)
-		token = strings.TrimSuffix(token, extWithType)
 
 		var entityData model.EntityData
 		err = yaml.Unmarshal(fData, &entityData)
@@ -205,7 +219,7 @@ func importDataFromDir(dir string, repoID int64) (err error) {
 
 		mEntity := model.Entity{
 			RepoID:    repoID,
-			Token:     token,
+			Path:      util.RelativePath(dir, path),
 			Title:     dataEl.Title,
 			Type:      eType,
 			Data:      entityData,

@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/refto/server/util"
+
 	"github.com/refto/server/service/data"
 	"github.com/xeipuuv/gojsonschema"
 )
@@ -77,7 +79,7 @@ func Validate(dirPath string) (resp ValidateResult, err error) {
 		if data.IsSchemaFile(f.Name()) {
 			err = registerSchema(dirPath, path, schemasRepo)
 			if err != nil {
-				errs.Add(err, "register schema: "+relPath(dirPath, path))
+				errs.Add(err, "register schema: "+util.RelativePath(dirPath, path))
 				return nil
 			}
 			resp.SchemaCount++
@@ -92,11 +94,11 @@ func Validate(dirPath string) (resp ValidateResult, err error) {
 		resp.DataCount++
 		jsonBytes, err := data.JSONBytesFromYAMLFile(path)
 		if err != nil {
-			errs.Add(err, relPath(dirPath, path))
+			errs.Add(err, util.RelativePath(dirPath, path))
 			return nil
 		}
 
-		t := data.TypeFromFilename(relPath(dirPath, path))
+		t := data.TypeFromFilename(util.RelativePath(dirPath, path))
 		_, ok := resp.DataCountByType[t]
 		if !ok {
 			resp.DataCountByType[t] = 0
@@ -125,22 +127,19 @@ func Validate(dirPath string) (resp ValidateResult, err error) {
 		for _, v := range files {
 			schema, ok := schemasRepo[t]
 			if !ok {
-				println("=============================================")
-				println("dir path:", dirPath)
-				println("file path:", v.Path)
-				errs.Add(fmt.Errorf("schema of type '%s' is not exists (source '%s')", t, relPath(dirPath, v.Path)))
+				errs.Add(fmt.Errorf("schema of type '%s' is not exists (source '%s')", t, util.RelativePath(dirPath, v.Path)))
 				break
 			}
 
 			loader := gojsonschema.NewBytesLoader(v.Data)
 			result, err := schema.Schema.Validate(loader)
 			if err != nil {
-				errs.Add(err, "validate "+relPath(dirPath, v.Path))
+				errs.Add(err, "validate "+util.RelativePath(dirPath, v.Path))
 				continue
 			}
 
 			if !result.Valid() {
-				errs.Add(errors.New("validation failed for " + relPath(dirPath, v.Path)))
+				errs.Add(errors.New("validation failed for " + util.RelativePath(dirPath, v.Path)))
 				for _, e := range result.Errors() {
 					errs.Add(errors.New("\t - " + e.String()))
 				}
@@ -165,7 +164,7 @@ func registerSchema(dirPath, filePath string, repo schemas) (err error) {
 	if ok {
 		err = fmt.Errorf(
 			"schema type '%s' from '%s' already registered in '%s'",
-			t, relPath(dirPath, filePath), relPath(dirPath, existing.Path),
+			t, util.RelativePath(dirPath, filePath), util.RelativePath(dirPath, existing.Path),
 		)
 		return
 	}
@@ -188,12 +187,4 @@ func registerSchema(dirPath, filePath string, repo schemas) (err error) {
 	}
 
 	return
-}
-
-func relPath(basePath, filePath string) string {
-	rel, err := filepath.Rel(basePath, filePath)
-	if err != nil {
-		return filePath
-	}
-	return rel
 }

@@ -1,12 +1,13 @@
 package repository
 
 import (
+	"strings"
+
 	"github.com/go-pg/pg/v9"
 	"github.com/refto/server/database"
 	"github.com/refto/server/database/filter"
 	"github.com/refto/server/database/model"
 	"github.com/refto/server/errors"
-	"github.com/refto/server/server/request"
 	"github.com/refto/server/util"
 )
 
@@ -16,9 +17,12 @@ var (
 	ErrRepoNotFoundByPath   = errors.NotFound("Repository is not found by path")
 	ErrOwnershipViolation   = errors.NotFound("You are not the owner of repository, how dare are you?")
 	ErrNotConfirmed         = errors.Unprocessable("Repository is not confirmed yet")
+	ErrInvalidRepoPath      = func(given string) error {
+		return errors.Unprocessable("Invalid repository path, must be in format of '{user}/{repo}', but '" + given + "' given")
+	}
 )
 
-func Filter(req request.FilterRepositories) (data []model.Repository, count int, err error) {
+func Filter(req FilterParams) (data []model.Repository, count int, err error) {
 	q := database.ORM().
 		Model(&data).
 		Apply(filter.PageFilter(req.Page, req.Limit)).
@@ -52,7 +56,7 @@ func Filter(req request.FilterRepositories) (data []model.Repository, count int,
 	return
 }
 
-func Create(m *model.Repository) (secret string, err error) {
+func Create(m *model.Repository) (err error) {
 	var existing model.Repository
 	existing, err = FindByPath(m.Path)
 	if err == nil {
@@ -73,8 +77,7 @@ func Create(m *model.Repository) (secret string, err error) {
 	m.Confirmed = false
 
 	err = database.ORM().Insert(m)
-
-	return m.Secret, err
+	return
 }
 
 func NewSecret(repoID int64) (secret string, err error) {
@@ -156,4 +159,19 @@ func FindByID(id int64) (m model.Repository, err error) {
 		First()
 
 	return
+}
+
+// NormalizeRepoPath removes simple mistakes from potentially valid format
+// (copying correct path from  GitHub's html page will result invalid path when pasting (whitespace around "/"))
+// return error if path in invalid format
+func NormalizeRepoPath(path string) (string, error) {
+	path = strings.TrimPrefix(path, "/")
+	path = strings.TrimSuffix(path, "/")
+	parts := strings.Split(path, "/")
+	if len(parts) != 2 {
+		return "", ErrInvalidRepoPath(path)
+	}
+
+	path = strings.TrimSpace(parts[0]) + "/" + strings.TrimSpace(parts[1])
+	return path, nil
 }

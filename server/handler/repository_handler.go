@@ -22,12 +22,13 @@ func GetPublicRepositories(c *gin.Context) {
 		return
 	}
 
-	req.Types = []model.RepoType{
+	params := req.ToParams()
+	params.Types = []model.RepoType{
 		model.RepoTypeGlobal,
 		model.RepoTypePublic,
 	}
-	req.Confirmed = util.NewBool(true)
-	data, count, err := repository.Filter(req)
+	params.Confirmed = util.NewBool(true)
+	data, count, err := repository.Filter(params)
 	if err != nil {
 		Abort(c, err)
 		return
@@ -47,8 +48,9 @@ func GetUserRepositories(c *gin.Context) {
 		return
 	}
 
-	req.UserID = request.AuthUser(c).ID
-	data, count, err := repository.Filter(req)
+	params := req.ToParams()
+	params.UserID = request.AuthUser(c).ID
+	data, count, err := repository.Filter(params)
 	if err != nil {
 		Abort(c, err)
 		return
@@ -78,17 +80,13 @@ func CreateRepository(c *gin.Context) {
 	}
 
 	elem := req.ToModel(c)
-	secret, err := repository.Create(&elem)
+	err := repository.Create(&elem)
 	if err != nil {
 		Abort(c, err)
 		return
 	}
 
-	resp := response.CreateRepository{
-		Secret: secret,
-	}
-
-	c.JSON(http.StatusCreated, resp)
+	c.JSON(http.StatusCreated, response.NewCreateRepository(elem))
 }
 
 func UpdateRepository(c *gin.Context) {
@@ -115,17 +113,14 @@ func GetNewRepositorySecret(c *gin.Context) {
 		return
 	}
 
-	secret, err := repository.NewSecret(repo.ID)
+	var err error
+	repo.Secret, err = repository.NewSecret(repo.ID)
 	if err != nil {
 		Abort(c, err)
 		return
 	}
 
-	resp := response.CreateRepository{
-		Secret: secret,
-	}
-
-	c.JSON(http.StatusOK, resp)
+	c.JSON(http.StatusOK, response.NewCreateRepository(repo))
 }
 
 func ImportRepository(c *gin.Context) {

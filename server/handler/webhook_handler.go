@@ -88,6 +88,9 @@ func ImportDataFromRepoByGitHubWebHook(c *gin.Context) {
 			repo.Description = req.Repo.Description
 		}
 
+		repo.DefaultBranch = req.Repo.DefaultBranch
+		repo.HTMLURL = req.Repo.HTMLURL
+
 		err = dataimport.FromGitHub(repo)
 		if err != nil {
 			log.Error("[ERROR] import from GH: " + err.Error())

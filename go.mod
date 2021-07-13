@@ -6,6 +6,7 @@ require (
 	github.com/bradleyfalzon/ghinstallation v1.1.1
 	github.com/brianvoe/gofakeit v3.18.0+incompatible
 	github.com/davecgh/go-spew v1.1.1
+	github.com/gertd/go-pluralize v0.1.7 // indirect
 	github.com/ghodss/yaml v1.0.0
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/static v0.0.0-20191128031702-f81c604d8ac2

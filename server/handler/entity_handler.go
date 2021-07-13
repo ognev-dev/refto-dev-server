@@ -100,7 +100,7 @@ func GetEntityByID(c *gin.Context) {
 		return
 	}
 
-	e, err := entity.FindByID(id)
+	e, err := entity.FindByID(id, entity.WithRepository())
 	if err != nil {
 		Abort(c, err)
 		return

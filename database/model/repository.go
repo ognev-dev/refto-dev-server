@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+const GithubAddr = "https://github.com/"
+
 type Repository struct {
 	ID     int64 `json:"id"`
 	UserID int64 `json:"-"`
@@ -17,6 +19,13 @@ type Repository struct {
 	// Path is just a "{user}/{repo}" on GitHub
 	// note that this is equals to "full_name" on GitHub API
 	Path string `json:"path"`
+
+	// I need default branch to build links like "view source", "edit", "commits"
+	DefaultBranch string `json:"default_branch"`
+
+	// HTML URL is a "https://github.com/{user}/{repo}"
+	// and filled from html_url property of GitHub API
+	HTMLURL string `json:"html_url" pg:"html_url"`
 
 	Name        string `json:"name"`
 	Description string `json:"description"`

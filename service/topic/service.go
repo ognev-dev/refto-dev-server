@@ -28,7 +28,7 @@ func Filter(req request.FilterTopics) (data []model.Topic, count int, err error)
 // For given topics A,B, should return C
 // For given topics A,E, should return D
 // (Also collection and repo should filtered if provided)
-// TODO topics from hidden and private repos will leak!
+// TODO topics from hidden and private repos is leaking!
 func Common(in CommonTopicsParams) (out []string, err error) {
 	// just return all topics
 	if len(in.Topics) == 0 && in.CollectionID == 0 && in.RepoID == 0 {

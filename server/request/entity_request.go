@@ -26,6 +26,8 @@ type FilterEntities struct {
 	Collection int64    `json:"col" form:"col"`
 	Repo       int64    `json:"repo" form:"repo"`
 
+	WithRepo bool `json:"with_repo" form:"with_repo"`
+
 	// internal
 	User int64 `json:"-" form:"-"`
 }

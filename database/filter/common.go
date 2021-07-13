@@ -7,9 +7,15 @@ import (
 
 const DefaultLimit = 25
 
-type Filter func(*orm.Query) (*orm.Query, error)
+type Fn func(*orm.Query) (*orm.Query, error)
 
-func PageFilter(page, limit int) Filter {
+func Apply(q *orm.Query, filters ...Fn) {
+	for _, fn := range filters {
+		q.Apply(fn)
+	}
+}
+
+func PageFilter(page, limit int) Fn {
 	if limit == 0 {
 		limit = DefaultLimit
 	}
@@ -29,7 +35,7 @@ func PageFilter(page, limit int) Filter {
 	}
 }
 
-func UserFilter(userID int64) Filter {
+func UserFilter(userID int64) Fn {
 	return func(q *orm.Query) (*orm.Query, error) {
 		q.Where("user_id = ?", userID)
 
@@ -37,7 +43,7 @@ func UserFilter(userID int64) Filter {
 	}
 }
 
-func TrashedFilter(trashed bool, optTable ...string) Filter {
+func TrashedFilter(trashed bool, optTable ...string) Fn {
 	col := "deleted_at"
 	if len(optTable) == 1 {
 		col = optTable[0] + "." + col

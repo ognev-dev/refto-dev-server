@@ -21,11 +21,13 @@ type GitHubRepoPushed struct {
 }
 
 type GitHubRepo struct {
-	Name        string `json:"name" binding:"required"`
-	Description string `json:"description" binding:"required"`
-	CloneURL    string `json:"clone_url" binding:"required"`
-	Path        string `json:"full_name" binding:"required"`
-	Private     bool   `json:"private"`
+	Name          string `json:"name" binding:"required"`
+	Description   string `json:"description" binding:"required"`
+	CloneURL      string `json:"clone_url" binding:"required"`
+	Path          string `json:"full_name" binding:"required"`
+	Private       bool   `json:"private"`
+	DefaultBranch string `json:"default_branch"`
+	HTMLURL       string `json:"html_url"`
 }
 
 type GitHubPullRequestEvent struct {

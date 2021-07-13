@@ -3,6 +3,8 @@ package request
 import (
 	"fmt"
 
+	"github.com/refto/server/service/repository"
+
 	"github.com/gin-gonic/gin"
 	"github.com/refto/server/database/model"
 	"github.com/refto/server/errors"
@@ -25,11 +27,15 @@ type FilterRepositories struct {
 	Pagination
 	Path string `json:"path" form:"path"`
 	Name string `json:"name" form:"name"`
+}
 
-	// internal only
-	Types     []model.RepoType `json:"-" form:"-"`
-	UserID    int64            `json:"-" form:"-"`
-	Confirmed *bool            `json:"-" form:"-"`
+func (r FilterRepositories) ToParams() repository.FilterParams {
+	return repository.FilterParams{
+		Page:  r.Page,
+		Limit: r.Limit,
+		Path:  r.Path,
+		Name:  r.Name,
+	}
 }
 
 type CreateRepository struct {
@@ -41,9 +47,17 @@ type CreateRepository struct {
 
 func (r *CreateRepository) Validate(*gin.Context) (err error) {
 	errs := errors.NewInput()
-	errs.AddIf(util.IsEmptyString(r.Path), "path", "Path is required")
 	errs.AddIf(util.IsEmptyString(r.Type.String()), "type", "Type is required")
 	errs.AddIf(!r.Type.IsValid(), "type", fmt.Sprintf("Invalid type: '%s'", r.Type))
+
+	if r.Path == "" {
+		errs.Add("path", "Path is required")
+	} else {
+		r.Path, err = repository.NormalizeRepoPath(r.Path)
+		if err != nil {
+			errs.Add("path", err.Error())
+		}
+	}
 
 	if errs.Has() {
 		return errs

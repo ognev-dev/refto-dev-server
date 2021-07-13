@@ -84,8 +84,15 @@ UpdateRepositoryReq:
 CreateRepositoryResp:
   type: object
   properties:
-    secret:
-      description: "A secret string that should be added to GitHub's webhook (TODO: explain more)"
+    webhook_create_url:
+      description: "URL to create webhook on Github"
+      type: string
+    webhook_payload_url:
+      type: string
+    webhook_secret:
+      type: string
+    repo_path:
+      description: "Repository path in format {user}/{name}"
       type: string
 
 FilterRepositoriesResp:

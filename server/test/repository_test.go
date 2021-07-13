@@ -32,7 +32,7 @@ func TestCreateRepository(t *testing.T) {
 	var resp response.CreateRepository
 	TestCreate(t, "repositories", req, &resp)
 
-	assert.True(t, resp.Secret != "")
+	assert.True(t, resp.WebhookSecret != "")
 	assert.DatabaseHas(t, "repositories", util.M{
 		"path":        req.Path,
 		"user_id":     AuthUser.ID,
@@ -76,7 +76,7 @@ func TestRepositoryGetNewSecret(t *testing.T) {
 		BindResponse: &resp,
 		AssertStatus: http.StatusOK,
 	})
-	assert.True(t, resp.Secret != "")
+	assert.True(t, resp.WebhookSecret != "")
 }
 
 func TestGetUserRepositories(t *testing.T) {

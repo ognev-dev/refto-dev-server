@@ -41,6 +41,15 @@ ALTER TABLE entities
 DROP INDEX topics_name_key;
 ALTER TABLE topics
     ADD COLUMN repo_id BIGINT REFERENCES repositories (id);
+
+ALTER TABLE entities
+    RENAME COLUMN token TO path;
+
+ALTER TABLE repositories
+    ADD COLUMN default_branch TEXT;
+ALTER TABLE repositories
+    ADD COLUMN html_url TEXT;
+
 `
 
 	migrations.MustRegister(func(db migrations.DB) (err error) {
