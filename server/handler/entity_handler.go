@@ -106,6 +106,10 @@ func GetEntityByID(c *gin.Context) {
 		return
 	}
 
+	if e.Repo.IsPrivate() && request.InvalidUser(c, e.Repo.UserID, entity.ErrPrivateEntity) {
+		return
+	}
+
 	if request.HasAuthUser(c) {
 		e.Collections, _, err = collection.Filter(request.FilterCollections{
 			UserID:   request.AuthUser(c).ID,

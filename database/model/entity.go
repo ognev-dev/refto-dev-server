@@ -18,7 +18,7 @@ type Entity struct {
 	UpdatedAt *time.Time `json:"updated_at"`
 	DeletedAt *time.Time `json:"deleted_at"`
 
-	Repository  *Repository  `json:"repository" pg:",fk:repo_id"`
+	Repo        *Repository  `json:"repository" pg:",fk:repo_id"`
 	Topics      []Topic      `json:"-" pg:"-"`
 	Collections []Collection `json:"collections" pg:"-"`
 
@@ -29,11 +29,11 @@ type Entity struct {
 }
 
 func (m *Entity) AfterScan(ctx context.Context) error {
-	if m.Repository != nil {
-		path := GithubAddr + m.Repository.Path
-		m.SourceURL = path + "/blob/" + m.Repository.DefaultBranch + "/" + m.Path
-		m.EditURL = path + "/edit/" + m.Repository.DefaultBranch + "/" + m.Path
-		m.CommitsURL = path + "/commits/" + m.Repository.DefaultBranch + "/" + m.Path
+	if m.Repo != nil {
+		path := GithubAddr + m.Repo.Path
+		m.SourceURL = path + "/blob/" + m.Repo.DefaultBranch + "/" + m.Path
+		m.EditURL = path + "/edit/" + m.Repo.DefaultBranch + "/" + m.Path
+		m.CommitsURL = path + "/commits/" + m.Repo.DefaultBranch + "/" + m.Path
 	}
 
 	return nil

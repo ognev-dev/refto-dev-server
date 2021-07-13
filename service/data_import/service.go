@@ -225,6 +225,8 @@ func importDataFromDir(dir string, repoID int64) (err error) {
 			Data:      entityData,
 			CreatedAt: time.Now(),
 		}
+
+		println("###", mEntity.Path)
 		err = entity.CreateOrUpdate(&mEntity)
 		if err != nil {
 			return

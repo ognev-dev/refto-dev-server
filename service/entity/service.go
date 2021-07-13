@@ -3,6 +3,8 @@ package entity
 import (
 	"fmt"
 
+	"github.com/refto/server/errors"
+
 	"github.com/go-pg/pg/v9/orm"
 
 	"github.com/go-pg/pg/v9"
@@ -11,6 +13,8 @@ import (
 	"github.com/refto/server/database/model"
 	"github.com/refto/server/server/request"
 )
+
+var ErrPrivateEntity = errors.Forbidden("Sorry, we cannot display his entity because it is under private repository")
 
 // DefinitionType
 // Definitions is a special kind of data that displayed only if one topic selected
@@ -91,7 +95,7 @@ func Filter(req request.FilterEntities) (data []model.Entity, count int, err err
 	}
 
 	if req.WithRepo {
-		q.Relation("Repository")
+		q.Relation("Repo")
 	}
 
 	q.OrderExpr("updated_at DESC, created_at DESC")
@@ -170,7 +174,7 @@ func FindByID(id int64, filters ...filter.Fn) (m model.Entity, err error) {
 
 func WithRepository() filter.Fn {
 	return func(q *orm.Query) (*orm.Query, error) {
-		q.Relation("Repository")
+		q.Relation("Repo")
 		return q, nil
 	}
 }

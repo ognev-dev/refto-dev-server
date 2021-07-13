@@ -10,5 +10,6 @@ func RelativePath(basePath, fullPath string) string {
 		return fullPath
 	}
 
+	rel = filepath.ToSlash(rel)
 	return rel
 }
