@@ -49,7 +49,7 @@ func LoginWithGithub(c *gin.Context) {
 	}
 
 	resp := response.LoginWithGithub{
-		User:      usr,
+		User:      *usr,
 		Token:     authtoken.Sign(token),
 		ExpiresAt: token.ExpiresAt,
 	}

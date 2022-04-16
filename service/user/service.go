@@ -10,7 +10,7 @@ import (
 	"github.com/refto/server/database/model"
 )
 
-func ResolveFromGithubUser(gu *github.User, token string) (u model.User, err error) {
+func ResolveFromGithubUser(gu *github.User, token string) (u *model.User, err error) {
 	if gu == nil {
 		err = errors.New("github user is empty")
 		return
@@ -22,13 +22,13 @@ func ResolveFromGithubUser(gu *github.User, token string) (u model.User, err err
 	}
 
 	u, err = FindByGithubID(gu.GetID())
-	if err != nil && err != pg.ErrNoRows {
+	if err != nil {
 		return
 	}
 
 	// create new
-	if err == pg.ErrNoRows {
-		u = model.User{
+	if u == nil {
+		u = &model.User{
 			Name:        gu.GetName(),
 			Login:       gu.GetLogin(),
 			AvatarURL:   gu.GetAvatarURL(),
@@ -37,7 +37,7 @@ func ResolveFromGithubUser(gu *github.User, token string) (u model.User, err err
 			Email:       gu.GetEmail(),
 			ActiveAt:    time.Now(),
 		}
-		err = Create(&u)
+		err = Create(u)
 		return
 	}
 
@@ -48,16 +48,23 @@ func ResolveFromGithubUser(gu *github.User, token string) (u model.User, err err
 	u.GithubToken = token
 	u.Email = gu.GetEmail()
 	u.ActiveAt = time.Now()
-	err = Update(&u)
+
+	err = Update(u)
 
 	return
 }
 
-func FindByGithubID(id int64) (m model.User, err error) {
+func FindByGithubID(id int64) (m *model.User, err error) {
+	m = &model.User{}
 	err = database.ORM().
-		Model(&m).
+		Model(m).
 		Where("github_id = ?", id).
 		First()
+
+	if err == pg.ErrNoRows {
+		m = nil
+		err = nil
+	}
 
 	return
 }

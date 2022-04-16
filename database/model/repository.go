@@ -58,6 +58,10 @@ type Repository struct {
 
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt *time.Time `json:"updated_at"`
+
+	Topics    []string `json:"topics" pg:",array"`
+	DataTypes []string `json:"data_types" pg:",array"`
+	DataCount int      `json:"data_count"`
 }
 
 func (m *Repository) BeforeInsert(ctx context.Context) (context.Context, error) {

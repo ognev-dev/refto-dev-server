@@ -48,7 +48,11 @@ var pluralizer = pluralize.NewClient()
 func FromGitHub(repo model.Repository) (err error) {
 	startAt := time.Now()
 
-	var dataInfo jsonschema.ValidateResult
+	var (
+		topics    []string
+		dataTypes []string
+		dataCount int
+	)
 
 	defer func() {
 		repo.ImportAt = util.NewTime(time.Now())
@@ -61,19 +65,18 @@ func FromGitHub(repo model.Repository) (err error) {
 			repo.ImportLog = err.Error()
 		} else {
 			repo.ImportStatus = model.RepoImportStatusOK
+			repo.DataCount = dataCount
+			repo.DataTypes = dataTypes
+			repo.Topics = topics
 			dur := time.Since(startAt).String()
 			// TODO would be nice to tell which topics is imported?
 			// TODO correct plural/singular form for counters
 			var importLog string
-			if dataInfo.SchemaCount == 1 {
-				var typeName string
-				for k := range dataInfo.DataCountByType {
-					typeName = string(k)
-					break
-				}
-				importLog = fmt.Sprintf("%d %s imported in %s", dataInfo.DataCount, pluralizer.Plural(typeName), dur)
+			if len(dataTypes) == 1 {
+				typeName := dataTypes[0]
+				importLog = fmt.Sprintf("%d %s imported in %s", dataCount, pluralizer.Plural(typeName), dur)
 			} else {
-				importLog = fmt.Sprintf("%d entities of %d types is imported in %s", dataInfo.DataCount, dataInfo.SchemaCount, dur)
+				importLog = fmt.Sprintf("%d entities of %d types is imported in %s", dataCount, len(dataTypes), dur)
 			}
 			repo.ImportLog = importLog
 		}
@@ -105,7 +108,7 @@ func FromGitHub(repo model.Repository) (err error) {
 	}
 
 	// validate
-	dataInfo, err = jsonschema.Validate(cloneTo)
+	_, err = jsonschema.Validate(cloneTo)
 	if err != nil {
 		err = errors.Wrap(err, "data validate")
 		return
@@ -115,6 +118,38 @@ func FromGitHub(repo model.Repository) (err error) {
 	err = FromDir(cloneTo, repo.ID)
 	if err != nil {
 		err = errors.Wrap(err, "data import")
+		return
+	}
+
+	err = database.ORM().
+		Model(&[]model.Topic{}).
+		Column("name").
+		Where("repo_id = ?", repo.ID).
+		Order("name").
+		Select(&topics)
+	if err != nil {
+		err = errors.Wrap(err, "get topics")
+		return
+	}
+
+	err = database.ORM().
+		Model(&[]model.Entity{}).
+		Column("type").
+		Where("repo_id = ?", repo.ID).
+		Order("type").
+		Group("type").
+		Select(&dataTypes)
+	if err != nil {
+		err = errors.Wrap(err, "get data types")
+		return
+	}
+
+	dataCount, err = database.ORM().
+		Model(&[]model.Entity{}).
+		Where("repo_id = ?", repo.ID).
+		Count()
+	if err != nil {
+		err = errors.Wrap(err, "get data count")
 		return
 	}
 
@@ -226,7 +261,6 @@ func importDataFromDir(dir string, repoID int64) (err error) {
 			CreatedAt: time.Now(),
 		}
 
-		println("###", mEntity.Path)
 		err = entity.CreateOrUpdate(&mEntity)
 		if err != nil {
 			return

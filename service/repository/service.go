@@ -15,7 +15,6 @@ var (
 	ErrUserAlreadyAddedRepo = errors.Unprocessable("You already added this repository before")
 	ErrRepoAlreadyClaimed   = errors.Unprocessable("Another user already added this repository")
 	ErrRepoNotFoundByPath   = errors.NotFound("Repository is not found by path")
-	ErrOwnershipViolation   = errors.NotFound("You are not the owner of repository, how dare are you?")
 	ErrNotConfirmed         = errors.Unprocessable("Repository is not confirmed yet")
 	ErrInvalidRepoPath      = func(given string) error {
 		return errors.Unprocessable("Invalid repository path, must be in format of '{user}/{repo}', but '" + given + "' given")
@@ -30,10 +29,6 @@ func Filter(req FilterParams) (data []model.Repository, count int, err error) {
 
 	if req.UserID > 0 {
 		q.Apply(filter.UserFilter(req.UserID))
-	}
-
-	if req.Name != "" {
-		q.Where("collection.name ILIKE ?", "%"+req.Name+"%")
 	}
 
 	if req.Name != "" && len(req.Name) > 2 {

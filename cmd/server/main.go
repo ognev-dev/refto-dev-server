@@ -7,6 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/refto/server/database"
+
 	"github.com/gin-gonic/autotls"
 	"github.com/gin-gonic/gin"
 	"github.com/refto/server/config"
@@ -23,6 +25,8 @@ func main() {
 	if config.IsReleaseEnv() {
 		gin.SetMode(conf.AppEnv)
 	}
+
+	_ = database.Connect()
 
 	r := gin.Default()
 	route.Register(r)

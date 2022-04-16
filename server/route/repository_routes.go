@@ -25,5 +25,4 @@ func repositoryRoutes(r *gin.RouterGroup) {
 		DELETE("/", handler.DeleteRepository).
 		POST("/secret/", handler.GetNewRepositorySecret).
 		POST("/import/", handler.ImportRepository)
-
 }

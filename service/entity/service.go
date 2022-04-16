@@ -21,12 +21,12 @@ var ErrPrivateEntity = errors.Forbidden("Sorry, we cannot display his entity bec
 // Should filter out definitions from regular data
 const DefinitionType = "definition"
 
-// DefinitionTokenPrefix
-// To get needed definition I need to know its token
-// And since token is a path to data, i need to know that path to build valid token
+// DefinitionPathPrefix
+// To get needed definition I need to know its path
 // So all definitions should be stored in one location
 // and it must be persistent
-const DefinitionTokenPrefix = "definitions/"
+// TODO make it configurable?
+const DefinitionPathPrefix = "definitions/"
 
 // SingleTopicOrder
 // when only one topic selected sort data in this order
@@ -78,7 +78,8 @@ func Filter(req request.FilterEntities) (data []model.Entity, count int, err err
 	// filter by exact repo if set
 	if req.Repo != 0 {
 		q.Where("entity.repo_id = ?", req.Repo)
-	} else { // otherwise filter by user's repos && global
+	} else {
+		// otherwise filter by user's repos && global
 		// this will be not efficient once we'll have lots of global repos
 		// add repo_type to entity maybe?
 		if req.User == 0 {
@@ -95,7 +96,7 @@ func Filter(req request.FilterEntities) (data []model.Entity, count int, err err
 	}
 
 	if req.WithRepo {
-		q.Relation("Repo")
+		q.Apply(WithRepository())
 	}
 
 	q.OrderExpr("updated_at DESC, created_at DESC")
@@ -104,12 +105,13 @@ func Filter(req request.FilterEntities) (data []model.Entity, count int, err err
 	return
 }
 
+// Definition returns definition of given name
 func Definition(name string) (def *model.Entity, err error) {
 	def = &model.Entity{}
 	err = database.ORM().
 		Model(def).
 		Where("type = ?", DefinitionType).
-		Where("token = ?", DefinitionTokenPrefix+name).
+		Where("path = ?", DefinitionPathPrefix+name).
 		First()
 
 	if err == pg.ErrNoRows {

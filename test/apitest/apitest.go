@@ -11,8 +11,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/refto/server/server/response"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg/v9/orm"
 	"github.com/refto/server/config"
@@ -20,6 +18,7 @@ import (
 	"github.com/refto/server/database/mock"
 	"github.com/refto/server/database/model"
 	"github.com/refto/server/logger"
+	"github.com/refto/server/server/response"
 	"github.com/refto/server/server/route"
 	authtoken "github.com/refto/server/service/auth_token"
 	"github.com/refto/server/test/assert"

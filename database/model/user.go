@@ -23,6 +23,7 @@ func (m *User) BeforeInsert(ctx context.Context) (context.Context, error) {
 	if m.CreatedAt.IsZero() {
 		m.CreatedAt = time.Now()
 	}
+
 	return ctx, nil
 }
 

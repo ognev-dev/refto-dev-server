@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -14,10 +15,15 @@ import (
 	"golang.org/x/oauth2"
 )
 
+const (
+	getAccessTokenAddr = "https://github.com/login/oauth/access_token/"
+)
+
 func GetAccessToken(code string) (token string, err error) {
 	hc := http.Client{Timeout: 30 * time.Second}
-	reqData := []byte(`{"client_id":"` + config.Get().GitHub.ClientID + `", "client_secret":"` + config.Get().GitHub.ClientSecret + `", "code":"` + code + `"}`)
-	req, err := http.NewRequest(http.MethodPost, "https://github.com/login/oauth/access_token/", bytes.NewBuffer(reqData))
+	clientID, secret := config.Get().GitHub.ClientID, config.Get().GitHub.ClientSecret
+	reqJsonString := fmt.Sprintf(`{"client_id":"%s", "client_secret":"%s", "code":"%s"}`, clientID, secret, code)
+	req, err := http.NewRequest(http.MethodPost, getAccessTokenAddr, bytes.NewBuffer([]byte(reqJsonString)))
 	if err != nil {
 		return
 	}

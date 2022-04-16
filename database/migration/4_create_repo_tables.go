@@ -49,6 +49,12 @@ ALTER TABLE repositories
     ADD COLUMN default_branch TEXT;
 ALTER TABLE repositories
     ADD COLUMN html_url TEXT;
+ALTER TABLE repositories
+    ADD COLUMN topics TEXT[];
+ALTER TABLE repositories
+    ADD COLUMN data_types TEXT[];
+ALTER TABLE repositories
+    ADD COLUMN data_count INT;
 
 `
 

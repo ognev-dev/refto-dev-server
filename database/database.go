@@ -20,7 +20,7 @@ var (
 	DB   orm.DB
 )
 
-func connect() *pg.DB {
+func Connect() *pg.DB {
 	conf := config.Get()
 	conn = pg.Connect(&pg.Options{
 		Addr:            conf.DB.Addr,
@@ -29,6 +29,11 @@ func connect() *pg.DB {
 		Database:        conf.DB.Name,
 		ApplicationName: "refto." + conf.AppEnv,
 	})
+
+	_, err := conn.Exec("SELECT 1")
+	if err != nil {
+		panic(err)
+	}
 
 	conn.AddQueryHook(dbLogger{})
 	DB = conn
@@ -53,7 +58,7 @@ func (d dbLogger) AfterQuery(c context.Context, q *pg.QueryEvent) (err error) {
 
 func Conn() *pg.DB {
 	if conn == nil {
-		connect()
+		Connect()
 	}
 
 	return conn
@@ -61,7 +66,7 @@ func Conn() *pg.DB {
 
 func ORM() orm.DB {
 	if conn == nil {
-		connect()
+		Connect()
 	}
 
 	return DB
